@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Gym Notes</string>
+    <string name="notes">Заметки</string>
+    <string name="achievements">Достижения</string>
+    <string name="start_working">Тренировка</string>
+
+    <string name="hands">Руки</string>
+    <string name="chest">Грудь</string>
+    <string name="back">Спина</string>
+    <string name="legs">Ноги</string>
+
+    <string name="create">Создать</string>
+    <string name="cancel">Отмена</string>
+    <string name="remove">Удалить</string>
+
+    <string name="empty_notes">Экран заметок пуст</string>
+    <string name="empty_notes_suggest">Переходи в раздел \"Тренировка\" \nи добавь свою первую заметку!</string>
+    <string name="empty_gymnastics">Экран упражнений пуст</string>
+    <string name="empty_gymnastics_suggest">Нажми на кнопку\nчтобы добавить упражнение!</string>
+
+    <string name="dialog_adding_gymnastic">Новое упражнение</string>
+    <string name="dialog_adding_details_gymnastic">Сколько?</string>
+    <string name="heft">Веса</string>
+    <string name="reps">Повторы</string>
+    <string name="sets">Сет</string>
+
+    <string name="dialog_name_gymnastic">Название упражнения</string>
+    <string name="dialog_enter_gymnastic">Введи название</string>
+
+    <string name="category_choice">Выбери категорию</string>
+    <string name="gymnastic_choice">Выбери упражнение</string>
+
+    <string name="notes_by_date">Заметки в этот день</string>
+
+    <string name="get_gymnastics_error">Не удалось получить все упражнения</string>
+    <string name="add_gymnastic_error">Не удалось добавить упражнение</string>
+    <string name="remove_gymnastic_error">Не удалось удалить упражнение</string>
+
+    <string name="get_notes_error">Не удалось получить все заметки</string>
+    <string name="add_note_error">Не удалось добавить заметку</string>
+    <string name="remove_note_error">Не удалось удалить заметку</string>
+    <string name="edit_note_error">Не удалось изменить заметку</string>
+</resources>
