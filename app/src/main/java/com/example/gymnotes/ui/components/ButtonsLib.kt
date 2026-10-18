@@ -10,23 +10,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import com.example.gymnotes.R
+import com.example.gymnotes.util.FabItem
 
 object ButtonsLib {
     @Composable
@@ -126,6 +137,56 @@ object ButtonsLib {
         }
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Composable
+    fun FabMenu(
+        @DrawableRes iconIdAdd: Int,
+        @DrawableRes iconIdClose: Int,
+        onCategorySelected: (String) -> Unit,
+        fabItems: List<FabItem> = emptyList()
+    ) {
+        var expanded by remember {
+            mutableStateOf(false)
+        }
+        FloatingActionButtonMenu(
+            expanded = expanded,
+            button = {
+                ToggleFloatingActionButton(
+                    checked = expanded,
+                    onCheckedChange = { expanded = it }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(
+                            if (expanded) iconIdClose else iconIdAdd
+                        ),
+                        contentDescription = null,
+                        tint = if (expanded) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        }
+                    )
+                }
+            }
+        ) {
+            fabItems.forEach { item ->
+                FloatingActionButtonMenuItem(
+                    onClick = {
+                        onCategorySelected(item.text)
+                        expanded = false
+                              },
+                    text = { Text(item.text) },
+                    icon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(item.iconRes),
+                            contentDescription = null
+                        )
+                    }
+                )
+            }
+        }
+    }
+
     @Composable
     fun ProductCheckButton(
         modifier: Modifier = Modifier,
@@ -198,7 +259,7 @@ object ButtonsLib {
                 painter = painterResource(iconId),
                 contentDescription = contentDescription,
                 modifier = Modifier.size(24.dp),
-                tint = if (enabled) MaterialTheme.colorScheme.tertiaryFixed else MaterialTheme.colorScheme.onSecondaryContainer
+                tint = if (enabled) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
     }

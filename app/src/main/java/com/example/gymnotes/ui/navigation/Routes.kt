@@ -5,5 +5,6 @@ enum class Routes {
     Achievements,
     NotesDate,
     StartWorking,
-    Gymnastics
+    Gymnastics,
+    Gym
 }

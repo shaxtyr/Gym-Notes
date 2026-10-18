@@ -15,7 +15,7 @@ val bottomNavigationItems = listOf(
         R.string.notes
     ),
     BottomNavigationItem(
-        Routes.StartWorking.name,
+        Routes.Gym.name,
         R.drawable.ic_start_working_24_px,
         R.string.start_working
     ),

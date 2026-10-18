@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-fun AddGymnasticDialog(
+fun AddGymnasticDialogForCategory(
     visible: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmation: (String) -> Unit,

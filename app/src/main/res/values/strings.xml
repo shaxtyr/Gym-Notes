@@ -28,7 +28,7 @@
     <string name="dialog_enter_gymnastic">Введи название</string>
 
     <string name="category_choice">Выбери категорию</string>
-    <string name="gymnastic_choice">Выбери упражнение</string>
+    <string name="choose_gym">Выбери упражнение из категории</string>
 
     <string name="notes_by_date">Заметки в этот день</string>
 

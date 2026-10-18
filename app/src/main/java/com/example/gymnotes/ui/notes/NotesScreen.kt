@@ -33,8 +33,6 @@ import com.example.gymnotes.domain.model.Note
 import com.example.gymnotes.presentation.notes.NotesEffect
 import com.example.gymnotes.presentation.notes.NotesIntent
 import com.example.gymnotes.presentation.notes.NotesViewModel
-import com.example.gymnotes.presentation.working.GymnasticsEffects
-import com.example.gymnotes.presentation.working.GymnasticsIntent
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

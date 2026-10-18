@@ -3,7 +3,6 @@ package com.example.gymnotes.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,8 +12,7 @@ import androidx.navigation.navArgument
 import com.example.gymnotes.ui.achievements.AchievementsScreen
 import com.example.gymnotes.ui.notes.NotesScreen
 import com.example.gymnotes.ui.calendar.NotesDateScreen
-import com.example.gymnotes.ui.working.GymnasticsScreen
-import com.example.gymnotes.ui.working.StartWorkingScreen
+import com.example.gymnotes.ui.working.GymScreen
 
 @Composable
 fun NavGraph() {
@@ -33,20 +31,8 @@ fun NavGraph() {
             composable(Routes.NotesDate.name) { NotesDateScreen(onNavigateToNotes = { addedAt ->
                 navController.navigate("${Routes.Notes.name}/$addedAt")
             }) }
-            composable(Routes.StartWorking.name) { StartWorkingScreen(navController) }
             composable(Routes.Achievements.name) { AchievementsScreen(navController) }
-            composable(
-                route = "${Routes.Gymnastics.name}/{category}",
-                arguments = listOf(
-                    navArgument(
-                        name = "category",
-                        builder = { type = NavType.StringType }
-                    )
-                )
-            ) { backStackEntry ->
-                val category = backStackEntry.arguments?.getString("category") ?: ""
-                GymnasticsScreen(category, navController)
-            }
+            composable(Routes.Gym.name) { GymScreen() }
             composable(
                 route = "${Routes.Notes.name}/{addedAt}",
                 arguments = listOf(

@@ -1,5 +1,6 @@
 package com.example.gymnotes.data.repository
 
+import android.util.Log
 import com.example.gymnotes.data.db.AppDatabase
 import com.example.gymnotes.data.db.entity.GymnasticEntity
 import com.example.gymnotes.data.mapper.GymnasticDbConverter

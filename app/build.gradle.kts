@@ -74,4 +74,10 @@ dependencies {
 // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+
+    // Основная библиотека Material 3 (требуется версия 1.4.0-alpha01 или новее)
+    //implementation(libs.androidx.compose.material3.v140alpha02)
+
+    // Дополнительные адаптивные анимации, которые часто используются с Expressive
+    //implementation("androidx.compose.material3.adaptive:adaptive:1.3.0")
 }

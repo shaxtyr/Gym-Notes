@@ -1,12 +1,11 @@
 package com.example.gymnotes.ui.working
 
-import android.util.Log
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +16,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,65 +35,92 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.Gymnastic
-import com.example.gymnotes.presentation.working.GymnasticsEffects
-import com.example.gymnotes.presentation.working.GymnasticsIntent
-import com.example.gymnotes.presentation.working.GymnasticsViewModel
+import com.example.gymnotes.presentation.working.GymEffects
+import com.example.gymnotes.presentation.working.GymIntent
+import com.example.gymnotes.presentation.working.GymViewModel
 import com.example.gymnotes.ui.components.AddDetailsGymnasticDialog
-import com.example.gymnotes.ui.components.AddGymnasticDialog
+import com.example.gymnotes.ui.components.AddGymnasticDialogForCategory
 import com.example.gymnotes.ui.components.ButtonsLib
 import com.example.gymnotes.ui.components.RemoveDialog
+import com.example.gymnotes.util.FabItem
 import org.koin.androidx.compose.koinViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GymnasticsScreen(
-    category: String,
-    navController: NavController,
-    gymnasticViewModel: GymnasticsViewModel = koinViewModel()
+fun GymScreen(
+    gymViewModel: GymViewModel = koinViewModel()
 ) {
-    val state by gymnasticViewModel.state.collectAsState()
+    val state by gymViewModel.state.collectAsState()
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = category) {
-        gymnasticViewModel.handleIntent(GymnasticsIntent.LoadGymnasticsByCategory(category))
+    val fabItems = listOf(
+        FabItem(
+            text = stringResource(R.string.hands),
+            iconRes = R.drawable.ic_hand_48_px
+        ),
+        FabItem(
+            text = stringResource(R.string.chest),
+            iconRes = R.drawable.ic_chest_48_px
+        ),
+        FabItem(
+            text = stringResource(R.string.back),
+            iconRes = R.drawable.ic_back_48_px
+        ),
+        FabItem(
+            text = stringResource(R.string.legs),
+            iconRes = R.drawable.ic_leg_48_px
+        )
+    )
+
+    val selectedIndex = fabItems.indexOfFirst { it.text == state.categoryForWatching }
+        .takeIf { it != -1 } ?: 0
+
+    LaunchedEffect(key1 = state.categoryForWatching) {
+        gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(state.categoryForWatching))
     }
 
     LaunchedEffect(key1 = Unit) {
-        gymnasticViewModel.effect.collect { effect ->
+        gymViewModel.effect.collect { effect ->
             when(effect) {
-                is GymnasticsEffects.ShowToast -> {
+                is GymEffects.ShowToast -> {
                     Toast.makeText(context, effect.error.toString(), Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets(0, 0, 0, 0),
+                windowInsets = WindowInsets(0,0,0,0),
                 title = {
-                    Text(
-                        text = stringResource(R.string.gymnastic_choice),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { navController.popBackStack() },
-                        modifier = Modifier.padding(
-                            vertical = 8.dp,
-                            horizontal = 4.dp
-                        )
+                    Column(modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
                     ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_back_24px),
-                            contentDescription = null
+                        Text(
+                            text = stringResource(R.string.choose_gym),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SingleChoiceSegmentedButtonRow {
+                            fabItems.forEachIndexed { index, item ->
+                                SegmentedButton(
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = fabItems.size),
+                                    selected = index == selectedIndex,
+                                    onClick = {
+                                        gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(item.text))
+                                    },
+                                    label = { Text(item.text) }
+                                )
+                            }
+                        }
                     }
+
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -101,10 +128,12 @@ fun GymnasticsScreen(
             )
         },
         floatingActionButton = {
-            ButtonsLib.FloatingActionButton(
-                onClick = { gymnasticViewModel.handleIntent(GymnasticsIntent.ShowAddGymnasticDialog) },
-                iconId = R.drawable.ic_add_gym_100px,
-                stringId = R.string.dialog_adding_gymnastic
+            ButtonsLib.FabMenu(
+                iconIdAdd = R.drawable.outline_add_24,
+                iconIdClose = R.drawable.ic_close_800_px,
+                onCategorySelected = { categoryText ->
+                    gymViewModel.handleIntent(GymIntent.ShowAddGymDialogForCategory(categoryText)) },
+                fabItems = fabItems
             )
         }
     ) { innerPadding ->
@@ -112,62 +141,63 @@ fun GymnasticsScreen(
             .fillMaxSize()
             .padding(innerPadding)) {
 
-            if (state.gymnasticItems.isEmpty()) {
+            if (state.gymItems.isEmpty()) {
                 ShowEmptyGymnasticsPlaceHolder()
             } else {
                 ShowGymnasticsContent(
-                    listOfGymnastic = state.gymnasticItems,
+                    listOfGymnastic = state.gymItems,
                     onItemClick = { gymnastic ->
-                        gymnasticViewModel.handleIntent(GymnasticsIntent.SelectGymnastic(gymnastic))
-                        gymnasticViewModel.handleIntent(GymnasticsIntent.ShowAddDetailsGymnasticDialog)
+                        gymViewModel.handleIntent(GymIntent.SelectGym(gymnastic))
+                        gymViewModel.handleIntent(GymIntent.ShowAddGymDetailsDialog)
                     },
                     onItemLongClick = { gymnastic ->
-                        gymnasticViewModel.handleIntent(GymnasticsIntent.SelectGymnastic(gymnastic))
-                        gymnasticViewModel.handleIntent(GymnasticsIntent.ShowRemoveGymnasticDialog)
+                        gymViewModel.handleIntent(GymIntent.SelectGym(gymnastic))
+                        gymViewModel.handleIntent(GymIntent.ShowRemoveGymDialog)
                     }
                 )
             }
         }
-        AddGymnasticDialog(
-            visible = state.isAddDialogVisible,
-            onDismissRequest = { gymnasticViewModel.handleIntent(GymnasticsIntent.HideAddGymnasticDialog) },
+        AddGymnasticDialogForCategory(
+            visible = state.isAddGymDialogVisible,
+            onDismissRequest = { gymViewModel.handleIntent(GymIntent.HideAddGymDialog) },
             onConfirmation = { gymnasticName ->
                 if (gymnasticName.isNotBlank()) {
-                    gymnasticViewModel.handleIntent(GymnasticsIntent.AddGymnastic(
-                        category = category,
+                    gymViewModel.handleIntent(GymIntent.AddGym(
+                        category = state.categoryForCreating,
                         gymnastic = gymnasticName
                     ))
                 }
             },
-            onDismission = { gymnasticViewModel.handleIntent(GymnasticsIntent.HideAddGymnasticDialog) }
+            onDismission = { gymViewModel.handleIntent(GymIntent.HideAddGymDialog) }
         )
         AddDetailsGymnasticDialog(
-            visible = state.isAddDetailsDialogVisible,
-            onDismissRequest = { gymnasticViewModel.handleIntent(GymnasticsIntent.HideAddDetailsGymnasticDialog) },
+            visible = state.isAddGymDetailsDialogVisible,
+            onDismissRequest = { gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog) },
             onConfirmation = { reps, heft ->
                 if (reps.isNotBlank() && heft.isNotBlank()) {
-                    gymnasticViewModel.handleIntent(GymnasticsIntent.AddNote(
+                    gymViewModel.handleIntent(GymIntent.AddNote(
                         reps = reps,
                         heft = heft,
-                        gymnastic = state.currentGymnastic
+                        gym = state.currentGymnastic
                     ))
                 }
-                gymnasticViewModel.handleIntent(GymnasticsIntent.HideAddDetailsGymnasticDialog)
+                gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog)
             },
-            onDismission = { gymnasticViewModel.handleIntent(GymnasticsIntent.HideAddDetailsGymnasticDialog) }
+            onDismission = { gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog) }
         )
         RemoveDialog(
-            visible = state.isRemoveDialogVisible,
-            onDismissRequest = { gymnasticViewModel.handleIntent(GymnasticsIntent.HideRemoveGymnasticDialog) },
+            visible = state.isRemoveGymDialogVisible,
+            onDismissRequest = { gymViewModel.handleIntent(GymIntent.HideRemoveGymDialog) },
             onConfirmation = {
                 state.currentGymnastic.let {
-                    gymnasticViewModel.handleIntent(GymnasticsIntent.RemoveGymnastic(it.id))
+                    gymViewModel.handleIntent(GymIntent.RemoveGym(it.id))
                 }
-                gymnasticViewModel.handleIntent(GymnasticsIntent.HideRemoveGymnasticDialog)
+                gymViewModel.handleIntent(GymIntent.HideRemoveGymDialog)
             },
-            onDismission = { gymnasticViewModel.handleIntent(GymnasticsIntent.HideRemoveGymnasticDialog) },
-            title = category
+            onDismission = { gymViewModel.handleIntent(GymIntent.HideRemoveGymDialog) },
+            title = state.categoryForWatching
         )
+
     }
 }
 
