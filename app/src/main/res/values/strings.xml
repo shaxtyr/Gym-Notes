@@ -20,7 +20,7 @@
 
     <string name="dialog_adding_gymnastic">Новое упражнение</string>
     <string name="dialog_adding_details_gymnastic">Сколько?</string>
-    <string name="heft">Веса</string>
+    <string name="heft">Веса, кг</string>
     <string name="reps">Повторы</string>
     <string name="sets">Сет</string>
 
@@ -30,7 +30,8 @@
     <string name="category_choice">Выбери категорию</string>
     <string name="choose_gym">Выбери упражнение из категории</string>
 
-    <string name="notes_by_date">Заметки в этот день</string>
+    <string name="notes_by_date">Заметки на %1$s</string>
+    <string name="remove_list_of">Удалить список\n«"%1$s"»?</string>
 
     <string name="get_gymnastics_error">Не удалось получить все упражнения</string>
     <string name="add_gymnastic_error">Не удалось добавить упражнение</string>

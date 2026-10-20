@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.Note
+import com.example.gymnotes.domain.model.NoteItem
 import com.example.gymnotes.presentation.notes.NotesEffect
 import com.example.gymnotes.presentation.notes.NotesIntent
 import com.example.gymnotes.presentation.notes.NotesViewModel
@@ -64,7 +65,7 @@ fun NotesScreen(
                 windowInsets = WindowInsets(0, 0, 0, 0),
                 title = {
                     Text(
-                        text = stringResource(R.string.notes_by_date),
+                        text = stringResource(R.string.notes_by_date, addedAt),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -74,11 +75,10 @@ fun NotesScreen(
                         onClick = { navController.popBackStack() },
                         modifier = Modifier.padding(
                             vertical = 8.dp,
-                            horizontal = 4.dp
                         )
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_back_24px),
+                            painter = painterResource(R.drawable.rounded_arrow_back_24),
                             contentDescription = null
                         )
                     }
@@ -100,14 +100,13 @@ fun NotesScreen(
 
 @Composable
 fun ShowNotes(
-    notesItems: List<Note>
+    notesItems: List<NoteItem>
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         NoteTable(notesItems)
     }
-
 }

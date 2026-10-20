@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 interface NoteInteractor {
     suspend fun removeNote(id: String)
     suspend fun removeNotesByDate(date: String)
-    suspend fun getNotesByDate(addedAt: String): Flow<List<Note>>
+    fun getNotesByDate(addedAt: String): Flow<List<Note>>
     suspend fun addNote(reps: String, heft: String, gymnastic: Gymnastic)
-    suspend fun getAllNotes(): Flow<List<Note>>
+    fun getAllNotes(): Flow<List<Note>>
     suspend fun getNoteById(id: String): Note
     suspend fun getNotesByCategory(category: String): Flow<List<Note>>
 }

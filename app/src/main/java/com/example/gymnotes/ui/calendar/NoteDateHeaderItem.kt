@@ -24,7 +24,7 @@ fun NoteDateHeaderItem(date: String) {
         Text(
             text = date,
             color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.bodyLarge,
         )
         SimpleLine()
     }

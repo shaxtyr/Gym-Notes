@@ -15,7 +15,7 @@ class NoteInteractorImpl(val noteRepository: NoteRepository) : NoteInteractor {
         noteRepository.removeNotesByDate(date)
     }
 
-    override suspend fun getNotesByDate(addedAt: String): Flow<List<Note>> {
+    override fun getNotesByDate(addedAt: String): Flow<List<Note>> {
         return noteRepository.getNotesByDate(addedAt)
     }
 
@@ -23,7 +23,7 @@ class NoteInteractorImpl(val noteRepository: NoteRepository) : NoteInteractor {
         noteRepository.addNote(reps, heft, gymnastic)
     }
 
-    override suspend fun getAllNotes(): Flow<List<Note>> {
+    override fun getAllNotes(): Flow<List<Note>> {
         return noteRepository.getAllNotes()
     }
 

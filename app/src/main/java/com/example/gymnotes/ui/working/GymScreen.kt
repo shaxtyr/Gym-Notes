@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.Gymnastic
@@ -98,15 +99,15 @@ fun GymScreen(
                 windowInsets = WindowInsets(0,0,0,0),
                 title = {
                     Column(modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = stringResource(R.string.choose_gym),
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.titleLarge
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         SingleChoiceSegmentedButtonRow {
                             fabItems.forEachIndexed { index, item ->
                                 SegmentedButton(
@@ -120,7 +121,6 @@ fun GymScreen(
                             }
                         }
                     }
-
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -129,7 +129,7 @@ fun GymScreen(
         },
         floatingActionButton = {
             ButtonsLib.FabMenu(
-                iconIdAdd = R.drawable.outline_add_24,
+                iconIdAdd = R.drawable.baseline_add_24,
                 iconIdClose = R.drawable.ic_close_800_px,
                 onCategorySelected = { categoryText ->
                     gymViewModel.handleIntent(GymIntent.ShowAddGymDialogForCategory(categoryText)) },
@@ -256,16 +256,20 @@ fun GymnasticItem(
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
-                vertical = 4.dp
+                vertical = 8.dp
             )
             .combinedClickable(
                 onClick = { onItemClick(gymnastic) },
                 onLongClick = { onItemLongClick(gymnastic) }
             ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.outline
     ) {
         Text(
+            modifier = Modifier.padding(8.dp),
             text = gymnastic.name,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 2,
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )

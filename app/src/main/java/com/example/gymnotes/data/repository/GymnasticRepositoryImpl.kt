@@ -27,7 +27,7 @@ class GymnasticRepositoryImpl(
         ))
     }
 
-    override suspend fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>> = flow {
+    override fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>> = flow {
         val gymnasticsByCategory = database.gymnasticDao().getGymnasticsByCategory(category)
         emit(gymnasticsByCategory.map { gymnasticEntity -> gymnasticDbConverter.fromEntityToModel(gymnasticEntity) })
     }

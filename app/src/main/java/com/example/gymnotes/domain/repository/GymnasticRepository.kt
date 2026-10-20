@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface GymnasticRepository {
     suspend fun removeGymnastic(id: String)
     suspend fun addGymnastic(category: String, gymnasticName: String)
-    suspend fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>>
+    fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>>
 }

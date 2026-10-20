@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -27,13 +31,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.gymnotes.R
-import com.example.gymnotes.domain.model.Gymnastic
-import com.example.gymnotes.domain.model.NotesDateGrid
+import com.example.gymnotes.domain.model.NotesDateGridItem
 import com.example.gymnotes.presentation.notes.NotesDateEffect
 import com.example.gymnotes.presentation.notes.NotesDateIntent
 import com.example.gymnotes.presentation.notes.NotesDateViewModel
+import com.example.gymnotes.ui.theme.GymNotesTheme
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,37 +58,80 @@ fun NotesDateScreen(
             }
         }
     }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            windowInsets = WindowInsets(0, 0, 0, 0),
-            title = {
-                Text(
-                    text = stringResource(R.string.notes),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge
+    //GymNotesTheme(
+      //  darkTheme = state.isDarkTheme,
+      //  dynamicColor = false
+    //) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    title = {
+                        Text(
+                            text = stringResource(R.string.notes),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    ),
+                    actions = {
+                        IconButton(
+                            onClick = { viewModel.handleIntent(NotesDateIntent.ToggleTheme) },
+                            modifier = Modifier.padding(
+                                start = 4.dp,
+                                top = 12.dp,
+                                bottom = 12.dp,
+                                end = 4.dp
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.choose_theme_24),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        IconButton(
+                            onClick = { viewModel.handleIntent(NotesDateIntent.ShowHelp) },
+                            modifier = Modifier.padding(
+                                start = 4.dp,
+                                top = 12.dp,
+                                bottom = 12.dp,
+                                end = 4.dp
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_help_24),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 )
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background
-            )
-        )
-        if (state.gridNotesDateItems.isEmpty()) {
-            ShowEmptyNotesPlaceHolder()
-        } else {
-            ShowDateNotesContent(
-                gridNoteItems = state.gridNotesDateItems,
-                onItemClick = { addedAt ->
-                    viewModel.handleIntent(NotesDateIntent.ShowNotes(addedAt))
-                },
-                onItemLongClick = { addedAt ->
-                    viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
-                }
-            )
-        }
-    }
-}
+            }
+        ) { innerPadding ->
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)) {
 
+                if (state.gridNotesDateItems.isEmpty()) {
+                    ShowEmptyNotesPlaceHolder()
+                } else {
+                    ShowDateNotesContent(
+                        gridNoteItems = state.gridNotesDateItems,
+                        onItemClick = { addedAt ->
+                            viewModel.handleIntent(NotesDateIntent.ShowNotes(addedAt))
+                        },
+                        onItemLongClick = { addedAt ->
+                            viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
+                        }
+                    )
+                }
+            }
+        }
+    //}
+}
 @Composable
 fun ShowEmptyNotesPlaceHolder() {
     Column(
@@ -114,12 +160,14 @@ fun ShowEmptyNotesPlaceHolder() {
 }
 @Composable
 fun ShowDateNotesContent(
-    gridNoteItems: List<NotesDateGrid>,
+    gridNoteItems: List<NotesDateGridItem>,
     onItemClick: (String) -> Unit,
     onItemLongClick: (String) -> Unit
 ) {
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         columns = GridCells.Fixed(4)
@@ -128,18 +176,18 @@ fun ShowDateNotesContent(
             items = gridNoteItems,
             span = { item ->
                 when(item) {
-                    is NotesDateGrid.HeaderNotesDate -> {
+                    is NotesDateGridItem.HeaderNotesDateItem -> {
                         GridItemSpan(4)
                     }
-                    is NotesDateGrid.ContentNotesDate -> {
+                    is NotesDateGridItem.ContentNotesDateItem -> {
                         GridItemSpan(1)
                     }
                 }
             }
         ) { item ->
                 when(item) {
-                    is NotesDateGrid.HeaderNotesDate -> NoteDateHeaderItem(item.monthYear)
-                    is NotesDateGrid.ContentNotesDate -> NoteDateContentItem(
+                    is NotesDateGridItem.HeaderNotesDateItem -> NoteDateHeaderItem(item.monthYear)
+                    is NotesDateGridItem.ContentNotesDateItem -> NoteDateContentItem(
                         dayNote = item.day,
                         dayOfWeekNote = item.dayOfWeek,
                         onItemClick = { onItemClick(item.addedAt) },

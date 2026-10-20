@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -74,6 +75,7 @@ dependencies {
 // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.androidx.datastore.preferences)
 
     // Основная библиотека Material 3 (требуется версия 1.4.0-alpha01 или новее)
     //implementation(libs.androidx.compose.material3.v140alpha02)
