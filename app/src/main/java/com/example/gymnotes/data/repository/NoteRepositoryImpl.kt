@@ -26,7 +26,7 @@ class NoteRepositoryImpl(
     }
 
     override fun getNotesByDate(addedAt: String): Flow<List<Note>> = flow {
-        val noteByDate = database.noteDao().getNotesByDate(addedAt)
+        val noteByDate = database.noteDao().getNotesByDate(addedAt).sortedBy { it.gymnasticName }
         emit(noteByDate.map { noteEntity -> noteDbConverter.fromEntityToModel(noteEntity) })
     }
 
@@ -65,5 +65,9 @@ class NoteRepositoryImpl(
     override fun getNotesByCategory(category: String): Flow<List<Note>> = flow {
         val noteByCategory = database.noteDao().getNotesByCategory(category)
         emit(noteByCategory.map { noteEntity -> noteDbConverter.fromEntityToModel(noteEntity) })
+    }
+
+    override suspend fun getGymNamesFromNotes(): List<String> {
+        return database.noteDao().getUniqueGymNamesFromNotes()
     }
 }

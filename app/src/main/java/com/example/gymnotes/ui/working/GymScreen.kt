@@ -1,10 +1,10 @@
 package com.example.gymnotes.ui.working
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -21,6 +21,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -29,8 +33,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.Gymnastic
 import com.example.gymnotes.presentation.working.GymEffects
+import com.example.gymnotes.presentation.working.GymInfo
 import com.example.gymnotes.presentation.working.GymIntent
 import com.example.gymnotes.presentation.working.GymViewModel
 import com.example.gymnotes.ui.components.AddDetailsGymnasticDialog
@@ -47,6 +54,7 @@ import com.example.gymnotes.ui.components.ButtonsLib
 import com.example.gymnotes.ui.components.RemoveDialog
 import com.example.gymnotes.util.FabItem
 import org.koin.androidx.compose.koinViewModel
+import kotlin.time.Duration
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,6 +64,7 @@ fun GymScreen(
 ) {
     val state by gymViewModel.state.collectAsState()
     val context = LocalContext.current
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 
     val fabItems = listOf(
         FabItem(
@@ -86,14 +95,35 @@ fun GymScreen(
     LaunchedEffect(key1 = Unit) {
         gymViewModel.effect.collect { effect ->
             when(effect) {
-                is GymEffects.ShowToast -> {
-                    Toast.makeText(context, effect.error.toString(), Toast.LENGTH_SHORT).show()
+                is GymEffects.ShowInfo -> {
+                    val message = when(effect.info) {
+                        is GymInfo.AddGymError -> context.getString(R.string.add_gymnastic_error)
+                        is GymInfo.RemoveError -> context.getString(R.string.remove_gymnastic_error)
+                        is GymInfo.LoadError -> context.getString(R.string.get_gymnastics_error)
+                        is GymInfo.AddNoteError -> context.getString(R.string.add_note_error)
+                        is GymInfo.GymNameEmpty -> context.getString(R.string.gym_name_empty)
+                        is GymInfo.GymNameOver -> context.getString(R.string.gym_name_over)
+                        is GymInfo.RepsEmpty -> context.getString(R.string.reps_empty_error)
+                        is GymInfo.RepsZero -> context.getString(R.string.reps_null_error)
+                        is GymInfo.RepsOver -> context.getString(R.string.reps_max_error)
+                        is GymInfo.HeftEmpty -> context.getString(R.string.heft_empty_error)
+                        is GymInfo.HeftZero -> context.getString(R.string.heft_null_error)
+                        is GymInfo.HeftOver -> context.getString(R.string.heft_max_error)
+                        is GymInfo.SuccessGym -> context.getString(R.string.add_gymnastic_success, state.categoryForCreating)
+                        is GymInfo.SuccessNote -> context.getString(R.string.add_note_success)
+                        is GymInfo.Success -> {}
+                    }
+                    snackbarHostState.showSnackbar(
+                        message = message.toString(),
+                        duration = SnackbarDuration.Short
+                    )
                 }
             }
         }
     }
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 windowInsets = WindowInsets(0,0,0,0),
@@ -104,7 +134,6 @@ fun GymScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.choose_gym),
-                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -130,14 +159,14 @@ fun GymScreen(
         floatingActionButton = {
             ButtonsLib.FabMenu(
                 iconIdAdd = R.drawable.baseline_add_24,
-                iconIdClose = R.drawable.ic_close_800_px,
+                iconIdClose = R.drawable.round_close_24,
                 onCategorySelected = { categoryText ->
                     gymViewModel.handleIntent(GymIntent.ShowAddGymDialogForCategory(categoryText)) },
                 fabItems = fabItems
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier
+        Box(modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)) {
 
@@ -156,34 +185,95 @@ fun GymScreen(
                     }
                 )
             }
+            Box(
+                modifier = Modifier.align(Alignment.Center)
+            ) {
+                SnackbarHost(hostState = snackbarHostState) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        shape = MaterialTheme.shapes.small,
+                        containerColor = if (state.validation == GymInfo.Success || state.validation == GymInfo.SuccessGym || state.validation == GymInfo.SuccessNote) {
+                            Color.Green
+                        } else {
+                            Color.Red
+                        },
+                        contentColor = Color.Black
+                    )
+                }
+            }
         }
+
+        // Затемнение (overlay)
+        if (state.isFabPressed) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    //.clickable { onIntent(ScreenIntent.CloseFabMenu) } // закрыть по тапу вне меню
+            )
+        }
+
+        // FAB Menu (поверх затемнения)
+        /*if (state.isFabPressed) {
+            FabMenu(
+                items = fabItems,
+                onItemClick = { item -> onIntent(ScreenIntent.FabMenuItemClicked(item)) },
+                position = FabMenuPosition.BottomEnd,
+                offset = Offset(0f, -200f)
+            )
+        }*/
         AddGymnasticDialogForCategory(
             visible = state.isAddGymDialogVisible,
-            onDismissRequest = { gymViewModel.handleIntent(GymIntent.HideAddGymDialog) },
-            onConfirmation = { gymnasticName ->
-                if (gymnasticName.isNotBlank()) {
-                    gymViewModel.handleIntent(GymIntent.AddGym(
-                        category = state.categoryForCreating,
-                        gymnastic = gymnasticName
-                    ))
-                }
+            validationMessage = when(state.validation) {
+                is GymInfo.GymNameEmpty -> stringResource(R.string.gym_name_empty)
+                is GymInfo.GymNameOver -> stringResource(R.string.gym_name_over)
+                else -> {""}
             },
-            onDismission = { gymViewModel.handleIntent(GymIntent.HideAddGymDialog) }
+            onDismissRequest = {
+                gymViewModel.handleIntent(GymIntent.HideAddGymDialog)
+                gymViewModel.handleIntent(GymIntent.DefaultValidation)
+           },
+            onConfirmation = { gymnasticName ->
+                gymViewModel.handleIntent(GymIntent.AddGym(
+                    category = state.categoryForCreating,
+                    gymnastic = gymnasticName
+                ))
+
+                GymEffects.ShowInfo(GymInfo.SuccessGym)
+            },
+            onDismission = {
+                gymViewModel.handleIntent(GymIntent.HideAddGymDialog)
+                gymViewModel.handleIntent(GymIntent.DefaultValidation)
+            },
         )
         AddDetailsGymnasticDialog(
             visible = state.isAddGymDetailsDialogVisible,
-            onDismissRequest = { gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog) },
+            validationMessage = when(state.validation) {
+                is GymInfo.RepsEmpty -> stringResource(R.string.reps_empty_error)
+                is GymInfo.RepsZero -> stringResource(R.string.reps_null_error)
+                is GymInfo.RepsOver -> stringResource(R.string.reps_max_error)
+                is GymInfo.HeftEmpty -> stringResource(R.string.heft_empty_error)
+                is GymInfo.HeftZero -> stringResource(R.string.heft_null_error)
+                is GymInfo.HeftOver -> stringResource(R.string.heft_max_error)
+                else -> {""}
+            },
+            onDismissRequest = {
+                gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog)
+                gymViewModel.handleIntent(GymIntent.DefaultValidation)
+            },
             onConfirmation = { reps, heft ->
-                if (reps.isNotBlank() && heft.isNotBlank()) {
-                    gymViewModel.handleIntent(GymIntent.AddNote(
+                gymViewModel.handleIntent(
+                    GymIntent.AddNote(
                         reps = reps,
                         heft = heft,
                         gym = state.currentGymnastic
-                    ))
-                }
-                gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog)
+                    )
+                )
             },
-            onDismission = { gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog) }
+            onDismission = {
+                gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog)
+                gymViewModel.handleIntent(GymIntent.DefaultValidation)
+            }
         )
         RemoveDialog(
             visible = state.isRemoveGymDialogVisible,
@@ -205,12 +295,10 @@ fun GymScreen(
 fun ShowEmptyGymnasticsPlaceHolder() {
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(R.string.empty_gymnastics),
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -222,7 +310,6 @@ fun ShowEmptyGymnasticsPlaceHolder() {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.empty_gymnastics_suggest),
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
     }
@@ -256,21 +343,19 @@ fun GymnasticItem(
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
-                vertical = 8.dp
+                vertical = 2.dp
             )
             .combinedClickable(
                 onClick = { onItemClick(gymnastic) },
                 onLongClick = { onItemLongClick(gymnastic) }
             ),
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.outline
     ) {
         Text(
             modifier = Modifier.padding(8.dp),
             text = gymnastic.name,
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
     }

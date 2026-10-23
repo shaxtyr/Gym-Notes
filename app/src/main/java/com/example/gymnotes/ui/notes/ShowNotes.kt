@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.NoteItem
 @Composable
-fun NoteTable(notesItem: List<NoteItem>) {
+fun ShowNotes(notesItem: List<NoteItem>) {
     LazyColumn(
         contentPadding = PaddingValues(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -37,7 +36,7 @@ fun NoteTable(notesItem: List<NoteItem>) {
         items(notesItem) { noteItem ->
             when(noteItem) {
                 is NoteItem.HeaderNoteItem -> NoteItemHeader(noteItem.gymName, noteItem.category)
-                is NoteItem.ContentNoteItem -> NoteRowCard(noteItem.sets, noteItem.heft, noteItem.heft)
+                is NoteItem.ContentNoteItem -> NoteRowCard(noteItem.sets, noteItem.reps, noteItem.heft)
             }
         }
     }
@@ -57,10 +56,9 @@ fun NoteItemHeader(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(4.dp),
         shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.primaryContainer, // мягкий акцентный фон
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer // цвет текста на этом фоне
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
         Column {
             Row(
@@ -77,7 +75,6 @@ fun NoteItemHeader(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     text = gymName,
-                    color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                 )
@@ -90,15 +87,14 @@ fun NoteItemHeader(
             HorizontalDivider(
                 modifier = Modifier.height(1.dp),
                 thickness = DividerDefaults.Thickness,
-                color = MaterialTheme.colorScheme.outline
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            MakeTitleColumn()
+            Spacer(modifier = Modifier.height(4.dp))
+            MakeTitleRow()
         }
     }
 }
 @Composable
-fun MakeTitleColumn() {
+fun MakeTitleRow() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -106,17 +102,14 @@ fun MakeTitleColumn() {
     ) {
         Text(
             text = stringResource(R.string.sets),
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
         Text(
             text = stringResource(R.string.reps),
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
         Text(
             text = stringResource(R.string.heft),
-            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
     }
@@ -132,10 +125,6 @@ fun NoteRowCard(
             .padding(horizontal = 12.dp, vertical = 2.dp)
             .fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant, // цвет фона
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant  // цвет текста внутри
-        )
     ) {
         Row(
             modifier = Modifier.padding(8.dp),
@@ -145,7 +134,6 @@ fun NoteRowCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = sets,
-                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -154,7 +142,6 @@ fun NoteRowCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = reps,
-                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -163,7 +150,6 @@ fun NoteRowCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = heft,
-                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge
                 )

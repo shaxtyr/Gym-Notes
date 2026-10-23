@@ -1,6 +1,5 @@
 package com.example.gymnotes.ui.calendar
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -32,7 +31,7 @@ fun NoteDateContentItem(
                 onClick = { onItemClick(dayNote) },
                 onLongClick = { onItemLongClick(dayNote) }
             ),
-        color = MaterialTheme.colorScheme.surface,
+        //color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 8.dp
     ) {
@@ -44,7 +43,7 @@ fun NoteDateContentItem(
         ) {
             Text(
                 text = dayNote,
-                color = MaterialTheme.colorScheme.primary,
+                //color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleLarge,
             )
             Box(
@@ -55,7 +54,7 @@ fun NoteDateContentItem(
             ) {
                 Text(
                     text = dayOfWeekNote,
-                    color = MaterialTheme.colorScheme.primary,
+                    //color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleSmall,
                 )
             }

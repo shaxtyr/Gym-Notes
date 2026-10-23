@@ -42,12 +42,12 @@ fun OutlinedTextFieldWithFocus(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        textStyle = MaterialTheme.typography.labelMedium,
+        textStyle = MaterialTheme.typography.bodyLarge,
         label = {
             labelTextId?.let {
                 Text(
                     stringResource(it),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.labelMedium
                 )
             }
         },
@@ -56,7 +56,7 @@ fun OutlinedTextFieldWithFocus(
             if (value.isEmpty()) {
                 Text(
                     stringResource(placeHolderTextId),
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         },
@@ -64,10 +64,10 @@ fun OutlinedTextFieldWithFocus(
             .fillMaxWidth()
             .focusRequester(focusRequester)
             .height(64.dp),
-        colors = OutlinedTextFieldDefaults.colors(
+        /*colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = focusColor,
             focusedLabelColor = focusColor,
-        )
+        )*/
     )
 }
 
@@ -85,36 +85,36 @@ fun OutlinedNumberField(
     val isFocused by interactionSource.collectIsFocusedAsState()
     val isEmpty = value.isEmpty()
 
-    val focusColor = MaterialTheme.colorScheme.tertiaryContainer
+    //val focusColor = MaterialTheme.colorScheme.tertiaryContainer
 
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         value = value,
         onValueChange = { newText -> onValueChange(newText.filter { it.isDigit() }) },
         singleLine = true,
-        textStyle = MaterialTheme.typography.labelMedium,
+        textStyle = MaterialTheme.typography.bodyLarge,
         label = {
             if (isFocused || !isEmpty) {
-                Text(
-                    stringResource(labelTextId!!),
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            } else {
                 Text(
                     stringResource(labelTextId!!),
                     style = MaterialTheme.typography.labelMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+            } else {
+                Text(
+                    stringResource(labelTextId!!),
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        colors = OutlinedTextFieldDefaults.colors(
+        /*colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = focusColor,
             focusedLabelColor = focusColor
-        ),
+        ),*/
         interactionSource = interactionSource
     )
 }

@@ -43,7 +43,7 @@ fun NavGraph(
                 composable(Routes.NotesDate.name) { NotesDateScreen(onNavigateToNotes = { addedAt ->
                     navController.navigate("${Routes.Notes.name}/$addedAt")
                 }) }
-                composable(Routes.Achievements.name) { AchievementsScreen(navController) }
+                composable(Routes.Achievements.name) { AchievementsScreen() }
                 composable(Routes.Gym.name) { GymScreen() }
                 composable(
                     route = "${Routes.Notes.name}/{addedAt}",

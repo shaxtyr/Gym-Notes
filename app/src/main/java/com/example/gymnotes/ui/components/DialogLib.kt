@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun AddGymnasticDialogForCategory(
     visible: Boolean,
+    validationMessage: String,
     onDismissRequest: () -> Unit,
     onConfirmation: (String) -> Unit,
     onDismission: () -> Unit,
@@ -50,14 +53,23 @@ fun AddGymnasticDialogForCategory(
                         labelTextId = R.string.dialog_name_gymnastic,
                         placeHolderTextId = R.string.dialog_enter_gymnastic,
                     )
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = validationMessage,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (validationMessage.isNotBlank()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.background
+                    )
+                    Spacer(Modifier.height(8.dp))
                 }
             },
             confirmButton = {
                 ButtonsLib.TextButton(onClick = { onConfirmation(gymnasticName) }, R.string.create)
+                gymnasticName = ""
             },
             dismissButton = {
                 ButtonsLib.TextButton(onClick = onDismission, R.string.cancel)
+                gymnasticName = ""
             }
         )
     }
@@ -66,6 +78,7 @@ fun AddGymnasticDialogForCategory(
 @Composable
 fun AddDetailsGymnasticDialog(
     visible: Boolean,
+    validationMessage: String,
     onDismissRequest: () -> Unit,
     onConfirmation: (String, String) -> Unit,
     onDismission: () -> Unit,
@@ -83,9 +96,8 @@ fun AddDetailsGymnasticDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = stringResource(R.string.dialog_adding_details_gymnastic))
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(16.dp))
                     Row {
-                        Text(text = stringResource(R.string.reps))
                         Spacer(Modifier.width(16.dp))
                         OutlinedNumberField(
                             modifier = Modifier.fillMaxWidth(),
@@ -94,8 +106,8 @@ fun AddDetailsGymnasticDialog(
                             labelTextId = R.string.reps
                         )
                     }
+                    Spacer(Modifier.height(8.dp))
                     Row {
-                        Text(text = stringResource(R.string.heft))
                         Spacer(Modifier.width(16.dp))
                         OutlinedNumberField(
                             modifier = Modifier.fillMaxWidth(),
@@ -104,14 +116,25 @@ fun AddDetailsGymnasticDialog(
                             labelTextId = R.string.heft
                         )
                     }
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = validationMessage,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (validationMessage.isNotBlank()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.background
+                    )
+                    Spacer(Modifier.height(8.dp))
                 }
             },
             confirmButton = {
                 ButtonsLib.TextButton(onClick = { onConfirmation(reps, heft) }, R.string.create)
+                reps = ""
+                heft = ""
             },
             dismissButton = {
                 ButtonsLib.TextButton(onClick = onDismission, R.string.cancel)
+                reps = ""
+                heft = ""
             }
         )
     }

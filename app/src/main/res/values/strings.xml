@@ -20,7 +20,8 @@
 
     <string name="dialog_adding_gymnastic">Новое упражнение</string>
     <string name="dialog_adding_details_gymnastic">Сколько?</string>
-    <string name="heft">Веса, кг</string>
+    <string name="heft">Вес, кг</string>
+    <string name="heft_max">макс.вес, кг</string>
     <string name="reps">Повторы</string>
     <string name="sets">Сет</string>
 
@@ -28,10 +29,13 @@
     <string name="dialog_enter_gymnastic">Введи название</string>
 
     <string name="category_choice">Выбери категорию</string>
-    <string name="choose_gym">Выбери упражнение из категории</string>
+    <string name="choose_gym">Упражнения</string>
 
     <string name="notes_by_date">Заметки на %1$s</string>
-    <string name="remove_list_of">Удалить список\n«"%1$s"»?</string>
+    <string name="remove_list_of">Удалить заметки на \n«"%1$s"»?</string>
+
+    <string name="add_gymnastic_success">Упражнение добавлено в категорию \"%1$s\"</string>
+    <string name="add_note_success">Заметка добавлена</string>
 
     <string name="get_gymnastics_error">Не удалось получить все упражнения</string>
     <string name="add_gymnastic_error">Не удалось добавить упражнение</string>
@@ -41,4 +45,14 @@
     <string name="add_note_error">Не удалось добавить заметку</string>
     <string name="remove_note_error">Не удалось удалить заметку</string>
     <string name="edit_note_error">Не удалось изменить заметку</string>
+
+    <string name="gym_name_empty">Введите название упражнения</string>
+    <string name="gym_name_over">Слишком длинное название</string>
+
+    <string name="reps_null_error">Количество повторов должно быть больше 0</string>
+    <string name="reps_empty_error">Заполните графу \"Повторы\"</string>
+    <string name="heft_null_error">Вес должен быть больше 0"</string>
+    <string name="heft_empty_error">Заполните графу \"Вес\"</string>
+    <string name="reps_max_error">Количество повторов должно быть меньше 10000</string>
+    <string name="heft_max_error">Вес должен быть меньше 100 тонн"</string>
 </resources>

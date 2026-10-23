@@ -29,5 +29,8 @@ interface NoteDao {
     suspend fun deleteNote(id: String)
 
     @Query("DELETE FROM note_table WHERE addedAt = :date")
-    suspend fun deleteNotesByDate(date: String) // например, "2026-10-25"
+    suspend fun deleteNotesByDate(date: String)
+
+    @Query("SELECT DISTINCT gymnasticName FROM note_table")
+    suspend fun getUniqueGymNamesFromNotes(): List<String>
 }

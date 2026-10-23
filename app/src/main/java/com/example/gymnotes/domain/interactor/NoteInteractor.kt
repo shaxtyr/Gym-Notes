@@ -12,4 +12,5 @@ interface NoteInteractor {
     fun getAllNotes(): Flow<List<Note>>
     suspend fun getNoteById(id: String): Note
     suspend fun getNotesByCategory(category: String): Flow<List<Note>>
+    suspend fun getGymNamesFromNotes(): List<String>
 }

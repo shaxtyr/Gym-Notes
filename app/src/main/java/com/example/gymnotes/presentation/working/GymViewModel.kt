@@ -1,6 +1,5 @@
 package com.example.gymnotes.presentation.working
 
-import android.util.Log
 import com.example.gymnotes.domain.interactor.GymnasticInteractor
 import com.example.gymnotes.domain.interactor.NoteInteractor
 import com.example.gymnotes.domain.model.Gymnastic
@@ -12,11 +11,13 @@ data class GymState(
     val categoryForWatching: String = "Руки",
     val categoryForCreating: String = "",
     val gymItems: List<Gymnastic> = emptyList(),
+    val isFabPressed: Boolean = false,
     val isAddGymDialogVisible: Boolean = false,
     val isAddGymDetailsDialogVisible: Boolean = false,
     val isRenameGymDialogVisible: Boolean = false,
     val isRemoveGymDialogVisible: Boolean = false,
-    val isGymSelectedVisible: Boolean = false
+    val isGymSelectedVisible: Boolean = false,
+    val validation: GymInfo = GymInfo.Success
 )
 
 sealed class GymIntent {
@@ -26,21 +27,36 @@ sealed class GymIntent {
     data class RemoveGym(val id: String) : GymIntent()
     data class SelectGym(val gymnastic: Gymnastic) : GymIntent()
     data class ShowAddGymDialogForCategory(val category: String) : GymIntent()
+    data object ToggleFabMenu : GymIntent()
     data object HideAddGymDialog : GymIntent()
     data object ShowAddGymDetailsDialog : GymIntent()
     data object HideAddGymDetailsDialog : GymIntent()
     data object ShowRemoveGymDialog : GymIntent()
     data object HideRemoveGymDialog : GymIntent()
+    data object DefaultValidation : GymIntent()
 }
 
 sealed class GymEffects {
-    data class ShowToast(val error: GymError) : GymEffects()
+    //data class ShowSuccess(val message: String) : GymEffects()
+    data class ShowInfo(val info: GymInfo) : GymEffects()
 }
 
-sealed class GymError {
-    object LoadFailed : GymError()
-    object AddFailed : GymError()
-    object RemoveFailed : GymError()
+sealed class GymInfo {
+    data object GymNameEmpty : GymInfo()
+    data object GymNameOver : GymInfo()
+    data object HeftEmpty : GymInfo()
+    data object HeftZero : GymInfo()
+    data object HeftOver : GymInfo()
+    data object RepsEmpty : GymInfo()
+    data object RepsZero : GymInfo()
+    data object RepsOver : GymInfo()
+    data object LoadError : GymInfo()
+    data object AddGymError : GymInfo()
+    data object AddNoteError : GymInfo()
+    data object RemoveError : GymInfo()
+    data object SuccessGym : GymInfo()
+    data object SuccessNote : GymInfo()
+    data object Success : GymInfo()
 }
 
 class GymViewModel(
@@ -62,11 +78,13 @@ class GymViewModel(
             is GymIntent.RemoveGym -> removeGym(intent.id)
             is GymIntent.SelectGym -> onGymSelected( intent.gymnastic)
             is GymIntent.ShowAddGymDialogForCategory -> showAddGymDialogForCategory(intent.category)
+            GymIntent.ToggleFabMenu -> toggleFabMenu()
             GymIntent.HideAddGymDialog -> hideAddGymDialog()
             GymIntent.ShowAddGymDetailsDialog -> showAddGymDetailsDialog()
             GymIntent.HideAddGymDetailsDialog -> hideAddGymDetailsDialog()
             GymIntent.ShowRemoveGymDialog -> showRemoveGymDialog()
             GymIntent.HideRemoveGymDialog -> hideRemoveGymDialog()
+            GymIntent.DefaultValidation -> defaultValidation()
         }
     }
     private fun removeGym(id: String) {
@@ -84,7 +102,7 @@ class GymViewModel(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                sendEffect(GymEffects.ShowToast(GymError.RemoveFailed))
+                sendEffect(GymEffects.ShowInfo(GymInfo.RemoveError))
             }
         }
     }
@@ -101,22 +119,60 @@ class GymViewModel(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                sendEffect(GymEffects.ShowToast(GymError.LoadFailed))
+                sendEffect(GymEffects.ShowInfo(GymInfo.LoadError))
             }
         }
     }
     private fun addNote(reps: String, heft: String, gymnastic: Gymnastic) {
         launch {
+            if (reps.isBlank()) {
+                updateState { copy(validation = GymInfo.RepsEmpty) }
+                return@launch
+            }
+            if (reps.toInt() == 0) {
+                updateState { copy(validation = GymInfo.RepsZero) }
+                return@launch
+            }
+            if (reps.toInt() > REPS_MAX) {
+                updateState { copy(validation = GymInfo.RepsOver) }
+                return@launch
+            }
+            if (heft.isBlank()) {
+                updateState { copy(validation = GymInfo.HeftEmpty) }
+                return@launch
+            }
+            if (heft.toInt() == 0) {
+                updateState { copy(validation = GymInfo.HeftZero) }
+                return@launch
+            }
+            if (heft.toInt() > HEFT_MAX) {
+                updateState { copy(validation = GymInfo.HeftOver) }
+                return@launch
+            }
             try {
                 noteInteractor.addNote(reps, heft, gymnastic)
+                updateState { copy(
+                    isAddGymDetailsDialogVisible = false
+                ) }
+                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessNote))
             } catch (e: Exception) {
                 e.printStackTrace()
-                sendEffect(GymEffects.ShowToast(GymError.AddFailed))
+                sendEffect(GymEffects.ShowInfo(GymInfo.AddNoteError))
             }
         }
     }
     private fun addGym(category: String, gymnasticName: String) {
         launch {
+            if (gymnasticName.isBlank()) {
+                //sendEffect(GymEffects.ShowInfo(GymInfo.GymNameEmpty))
+                updateState { copy(validation = GymInfo.GymNameEmpty) }
+                return@launch
+            }
+            if (gymnasticName.length > GYM_NAME_MAX) {
+                //sendEffect(GymEffects.ShowInfo(GymInfo.GymNameOver))
+                updateState { copy(validation = GymInfo.GymNameOver) }
+                return@launch
+            }
             try {
                 workingInteractor.addGymnastic(category, gymnasticName)
                 val currentGymnastics = workingInteractor.getGymnasticsByCategory(category).first().toMutableList()
@@ -124,12 +180,13 @@ class GymViewModel(
                     copy(
                         categoryForWatching = category,
                         gymItems = currentGymnastics,
-                        isAddGymDialogVisible = false
+                        isAddGymDialogVisible = false,
                     )
                 }
+                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessGym))
             } catch (e: Exception) {
                 e.printStackTrace()
-                sendEffect(GymEffects.ShowToast(GymError.AddFailed))
+                sendEffect(GymEffects.ShowInfo(GymInfo.AddGymError))
             }
         }
     }
@@ -139,6 +196,10 @@ class GymViewModel(
             currentGymnastic = gymnastic,
             isGymSelectedVisible = true
         ) }
+    }
+
+    private fun toggleFabMenu() {
+        updateState { copy(isFabPressed = !isFabPressed) }
     }
 
     private fun showAddGymDialogForCategory(category: String) {
@@ -165,4 +226,15 @@ class GymViewModel(
     private fun hideRemoveGymDialog() {
         updateState { copy(isRemoveGymDialogVisible = false) }
     }
+
+    private fun defaultValidation() {
+        updateState { copy(validation = GymInfo.Success) }
+    }
+
+    companion object {
+        private const val REPS_MAX = 10_000
+        private const val HEFT_MAX = 100_000
+        private const val GYM_NAME_MAX = 100
+    }
 }
+

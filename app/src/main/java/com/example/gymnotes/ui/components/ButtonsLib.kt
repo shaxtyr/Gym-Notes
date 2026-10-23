@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
 import com.example.gymnotes.util.FabItem
@@ -44,12 +45,15 @@ object ButtonsLib {
     fun Button(onClick: () -> Unit, @StringRes stringId: Int) {
         Button(
             onClick = onClick,
-            colors = ButtonDefaults.buttonColors(
+            /*colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-            )
+            )*/
         ) {
-            Text(stringResource(stringId))
+            Text(
+                text = stringResource(stringId),
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 
@@ -57,12 +61,15 @@ object ButtonsLib {
     fun FilledTonalButton(onClick: () -> Unit, @StringRes stringId: Int) {
         FilledTonalButton(
             onClick = onClick,
-            colors = ButtonDefaults.filledTonalButtonColors(
+            /*colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+            )*/
         ) {
-            Text(text = stringResource(stringId))
+            Text(
+                text = stringResource(stringId),
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 
@@ -70,11 +77,13 @@ object ButtonsLib {
     fun TextButton(onClick: () -> Unit, @StringRes stringId: Int) {
         TextButton(
             onClick = onClick,
-            colors = ButtonDefaults.textButtonColors(
+            /*colors = ButtonDefaults.textButtonColors(
                 contentColor = MaterialTheme.colorScheme.onSurface
-            )
+            )*/
         ) {
-            Text(text = stringResource(stringId))
+            Text(
+                text = stringResource(stringId),
+                style = MaterialTheme.typography.labelLarge)
         }
     }
 
@@ -91,44 +100,6 @@ object ButtonsLib {
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = MaterialTheme.colorScheme.onSurface
             )
-        ) {
-            Icon(
-                painter = painterResource(iconId),
-                contentDescription = stringResource(stringId)
-            )
-        }
-    }
-
-    @Composable
-    fun FilledTonalIconButton(
-        onClick: () -> Unit,
-        @DrawableRes iconId: Int,
-        @StringRes stringId: Int
-    ) {
-        FilledTonalIconButton(
-            onClick = onClick,
-            colors = IconButtonDefaults.filledTonalIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Icon(
-                painter = painterResource(iconId),
-                contentDescription = stringResource(stringId)
-            )
-        }
-    }
-
-    @Composable
-    fun FloatingActionButton(
-        onClick: () -> Unit,
-        @DrawableRes iconId: Int,
-        @StringRes stringId: Int
-    ) {
-        FloatingActionButton(
-            onClick = onClick,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ) {
             Icon(
                 painter = painterResource(iconId),
@@ -160,11 +131,6 @@ object ButtonsLib {
                             if (expanded) iconIdClose else iconIdAdd
                         ),
                         contentDescription = null,
-                        tint = if (expanded) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        }
                     )
                 }
             }
@@ -185,28 +151,6 @@ object ButtonsLib {
                 )
             }
         }
-    }
-
-    @Composable
-    fun ProductCheckButton(
-        modifier: Modifier = Modifier,
-        onClick: () -> Unit,
-        @DrawableRes iconId: Int,
-        @StringRes stringId: Int,
-        tint: Color? = null
-    ) {
-        Icon(
-            modifier = modifier
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onClick
-                ),
-            painter = painterResource(iconId),
-            contentDescription = stringResource(stringId),
-            tint = tint ?: Color.Unspecified
-        )
-
     }
 
     @Composable

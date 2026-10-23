@@ -34,4 +34,8 @@ class NoteInteractorImpl(val noteRepository: NoteRepository) : NoteInteractor {
     override suspend fun getNotesByCategory(category: String): Flow<List<Note>> {
         return noteRepository.getNotesByCategory(category)
     }
+
+    override suspend fun getGymNamesFromNotes(): List<String> {
+        return noteRepository.getGymNamesFromNotes()
+    }
 }

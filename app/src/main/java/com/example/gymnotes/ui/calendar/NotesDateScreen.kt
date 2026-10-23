@@ -58,79 +58,72 @@ fun NotesDateScreen(
             }
         }
     }
-    //GymNotesTheme(
-      //  darkTheme = state.isDarkTheme,
-      //  dynamicColor = false
-    //) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    title = {
-                        Text(
-                            text = stringResource(R.string.notes),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleLarge
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                title = {
+                    Text(
+                        text = stringResource(R.string.notes),
+                        //color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                actions = {
+                    IconButton(
+                        onClick = { viewModel.handleIntent(NotesDateIntent.ToggleTheme) },
+                        modifier = Modifier.padding(
+                            start = 4.dp,
+                            top = 12.dp,
+                            bottom = 12.dp,
+                            end = 4.dp
                         )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.choose_theme_24),
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(
+                        onClick = { viewModel.handleIntent(NotesDateIntent.ShowHelp) },
+                        modifier = Modifier.padding(
+                            start = 4.dp,
+                            top = 12.dp,
+                            bottom = 12.dp,
+                            end = 4.dp
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_help_24),
+                            contentDescription = null,
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)) {
+
+            if (state.gridNotesDateItems.isEmpty()) {
+                ShowEmptyNotesPlaceHolder()
+            } else {
+                ShowDateNotesContent(
+                    gridNoteItems = state.gridNotesDateItems,
+                    onItemClick = { addedAt ->
+                        viewModel.handleIntent(NotesDateIntent.ShowNotes(addedAt))
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-                    actions = {
-                        IconButton(
-                            onClick = { viewModel.handleIntent(NotesDateIntent.ToggleTheme) },
-                            modifier = Modifier.padding(
-                                start = 4.dp,
-                                top = 12.dp,
-                                bottom = 12.dp,
-                                end = 4.dp
-                            )
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.choose_theme_24),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        IconButton(
-                            onClick = { viewModel.handleIntent(NotesDateIntent.ShowHelp) },
-                            modifier = Modifier.padding(
-                                start = 4.dp,
-                                top = 12.dp,
-                                bottom = 12.dp,
-                                end = 4.dp
-                            )
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.outline_help_24),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    onItemLongClick = { addedAt ->
+                        viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
                     }
                 )
             }
-        ) { innerPadding ->
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)) {
-
-                if (state.gridNotesDateItems.isEmpty()) {
-                    ShowEmptyNotesPlaceHolder()
-                } else {
-                    ShowDateNotesContent(
-                        gridNoteItems = state.gridNotesDateItems,
-                        onItemClick = { addedAt ->
-                            viewModel.handleIntent(NotesDateIntent.ShowNotes(addedAt))
-                        },
-                        onItemLongClick = { addedAt ->
-                            viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
-                        }
-                    )
-                }
-            }
         }
-    //}
+    }
 }
 @Composable
 fun ShowEmptyNotesPlaceHolder() {
@@ -141,7 +134,7 @@ fun ShowEmptyNotesPlaceHolder() {
     ) {
         Text(
             text = stringResource(R.string.empty_notes),
-            color = MaterialTheme.colorScheme.primary,
+            //color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -153,7 +146,7 @@ fun ShowEmptyNotesPlaceHolder() {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.empty_notes_suggest),
-            color = MaterialTheme.colorScheme.primary,
+            //color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleLarge
         )
     }
