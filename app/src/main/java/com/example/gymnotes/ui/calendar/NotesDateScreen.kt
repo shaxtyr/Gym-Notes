@@ -30,12 +30,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.NotesDateGridItem
 import com.example.gymnotes.presentation.notes.NotesDateEffect
 import com.example.gymnotes.presentation.notes.NotesDateIntent
 import com.example.gymnotes.presentation.notes.NotesDateViewModel
+import com.example.gymnotes.presentation.working.GymIntent
+import com.example.gymnotes.ui.components.RemoveDialog
 import com.example.gymnotes.ui.theme.GymNotesTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -65,7 +68,6 @@ fun NotesDateScreen(
                 title = {
                     Text(
                         text = stringResource(R.string.notes),
-                        //color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -118,11 +120,25 @@ fun NotesDateScreen(
                         viewModel.handleIntent(NotesDateIntent.ShowNotes(addedAt))
                     },
                     onItemLongClick = { addedAt ->
-                        viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
+                        viewModel.handleIntent(NotesDateIntent.SelectDate(addedAt))
+                        viewModel.handleIntent(NotesDateIntent.ShowRemoveDateDialog)
+                        //viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
                     }
                 )
             }
         }
+        RemoveDialog(
+            visible = state.isRemoveDateDialogVisible,
+            onDismissRequest = { viewModel.handleIntent(NotesDateIntent.HideRemoveDateDialog) },
+            onConfirmation = {
+                state.dateToRemove.let {
+                    viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(it))
+                }
+                viewModel.handleIntent(NotesDateIntent.HideRemoveDateDialog)
+            },
+            onDismission = { viewModel.handleIntent(NotesDateIntent.HideRemoveDateDialog) },
+            title = stringResource(R.string.remove_list_of, state.dateToRemove)
+        )
     }
 }
 @Composable
@@ -132,22 +148,20 @@ fun ShowEmptyNotesPlaceHolder() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(R.string.empty_notes),
-            //color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleLarge
-        )
-        Spacer(modifier = Modifier.height(16.dp))
         Image(
             alignment = Alignment.Center,
-            painter = painterResource(id = R.drawable.placeholder_empty_note_512px),
+            painter = painterResource(id = R.drawable.placeholder_empty),
             contentDescription = null
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.empty_list),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(R.string.empty_notes_suggest),
-            //color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
         )
     }
 }

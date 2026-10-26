@@ -1,5 +1,6 @@
 package com.example.gymnotes.domain.interactor
 
+import com.example.gymnotes.domain.model.GymNameAndCategory
 import com.example.gymnotes.domain.model.Gymnastic
 import com.example.gymnotes.domain.model.Note
 import kotlinx.coroutines.flow.Flow
@@ -12,5 +13,5 @@ interface NoteInteractor {
     fun getAllNotes(): Flow<List<Note>>
     suspend fun getNoteById(id: String): Note
     suspend fun getNotesByCategory(category: String): Flow<List<Note>>
-    suspend fun getGymNamesFromNotes(): List<String>
+    suspend fun getGymNamesFromNotes(): List<GymNameAndCategory>
 }

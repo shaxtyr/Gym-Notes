@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.gymnotes.data.db.entity.NoteEntity
+import com.example.gymnotes.domain.model.GymNameAndCategory
+import com.example.gymnotes.domain.model.Gymnastic
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -31,6 +33,7 @@ interface NoteDao {
     @Query("DELETE FROM note_table WHERE addedAt = :date")
     suspend fun deleteNotesByDate(date: String)
 
-    @Query("SELECT DISTINCT gymnasticName FROM note_table")
-    suspend fun getUniqueGymNamesFromNotes(): List<String>
+    @Query("SELECT DISTINCT gymnasticName, category FROM note_table")
+    suspend fun getUniqueGymNamesFromNotes(): List<GymNameAndCategory>
+
 }

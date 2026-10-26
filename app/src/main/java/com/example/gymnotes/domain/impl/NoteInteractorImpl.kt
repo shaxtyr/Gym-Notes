@@ -1,6 +1,7 @@
 package com.example.gymnotes.domain.impl
 
 import com.example.gymnotes.domain.interactor.NoteInteractor
+import com.example.gymnotes.domain.model.GymNameAndCategory
 import com.example.gymnotes.domain.model.Gymnastic
 import com.example.gymnotes.domain.model.Note
 import com.example.gymnotes.domain.repository.NoteRepository
@@ -35,7 +36,7 @@ class NoteInteractorImpl(val noteRepository: NoteRepository) : NoteInteractor {
         return noteRepository.getNotesByCategory(category)
     }
 
-    override suspend fun getGymNamesFromNotes(): List<String> {
+    override suspend fun getGymNamesFromNotes(): List<GymNameAndCategory> {
         return noteRepository.getGymNamesFromNotes()
     }
 }

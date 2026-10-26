@@ -33,23 +33,17 @@ class AchievementsViewModel(
     private fun showListOfAchievements() {
         launch {
             try {
-                val currentGymNamesFromNotes = noteInteractor.getGymNamesFromNotes()
+                val currentGymNamesAndCategory = noteInteractor.getGymNamesFromNotes()
                 val maxNotes = mutableListOf<Note>()
 
-                val currentListOfAchievements = noteInteractor.getAllNotes().first().toMutableList()
-                if (currentListOfAchievements.isNotEmpty()) {
-                    var maxNote = currentListOfAchievements.first()
-
-                    // Сравниваю по названию упражнения, по макс. весу и затем по кол-ву повторов
-                    for (gymName in currentGymNamesFromNotes) {
-                        for (note in currentListOfAchievements) {
-                            if (note.gymnasticName == gymName && note.heft.toInt() > maxNote.heft.toInt()) {
-                                maxNote = note
-                            } else if (note.gymnasticName == gymName && note.heft.toInt() == maxNote.heft.toInt() && note.reps.toInt() > maxNote.reps.toInt()) {
-                                maxNote = note
-                            }
+                val currentNotes = noteInteractor.getAllNotes().first().toMutableList()
+                if (currentNotes.isNotEmpty()) {
+                    for (item in currentGymNamesAndCategory) {
+                        val filteredNotes = currentNotes.filter { note ->
+                            note.gymnasticName == item.gymnasticName && note.category == item.category
                         }
-                        maxNotes.add(maxNote)
+                        val sortedNotes = filteredNotes.sortedByDescending { it.heft }.sortedByDescending { it.reps }.first()
+                        maxNotes.add(sortedNotes)
                     }
                     updateState {
                         copy(listOfAchievements = maxNotes)

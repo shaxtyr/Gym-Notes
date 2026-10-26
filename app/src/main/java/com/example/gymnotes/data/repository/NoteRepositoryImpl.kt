@@ -3,6 +3,7 @@ package com.example.gymnotes.data.repository
 import com.example.gymnotes.data.db.AppDatabase
 import com.example.gymnotes.data.db.entity.NoteEntity
 import com.example.gymnotes.data.mapper.NoteDbConverter
+import com.example.gymnotes.domain.model.GymNameAndCategory
 import com.example.gymnotes.domain.model.Gymnastic
 import com.example.gymnotes.domain.model.Note
 import com.example.gymnotes.domain.repository.NoteRepository
@@ -26,7 +27,7 @@ class NoteRepositoryImpl(
     }
 
     override fun getNotesByDate(addedAt: String): Flow<List<Note>> = flow {
-        val noteByDate = database.noteDao().getNotesByDate(addedAt).sortedBy { it.gymnasticName }
+        val noteByDate = database.noteDao().getNotesByDate(addedAt).sortedBy { it.category }
         emit(noteByDate.map { noteEntity -> noteDbConverter.fromEntityToModel(noteEntity) })
     }
 
@@ -67,7 +68,7 @@ class NoteRepositoryImpl(
         emit(noteByCategory.map { noteEntity -> noteDbConverter.fromEntityToModel(noteEntity) })
     }
 
-    override suspend fun getGymNamesFromNotes(): List<String> {
-        return database.noteDao().getUniqueGymNamesFromNotes()
+    override suspend fun getGymNamesFromNotes(): List<GymNameAndCategory> {
+        return database.noteDao().getUniqueGymNamesFromNotes().sortedBy { it.category }
     }
 }

@@ -128,8 +128,8 @@ fun AddDetailsGymnasticDialog(
             },
             confirmButton = {
                 ButtonsLib.TextButton(onClick = { onConfirmation(reps, heft) }, R.string.create)
-                reps = ""
-                heft = ""
+                //reps = ""
+                //heft = ""
             },
             dismissButton = {
                 ButtonsLib.TextButton(onClick = onDismission, R.string.cancel)
@@ -161,7 +161,7 @@ fun RemoveDialog(
                 }
             },
             confirmButton = {
-                ButtonsLib.Button(onClick = onConfirmation, R.string.remove)
+                ButtonsLib.Button(onClick = { onConfirmation() }, R.string.yes)
             },
             dismissButton = {
                 ButtonsLib.FilledTonalButton(onClick = onDismission, R.string.cancel)

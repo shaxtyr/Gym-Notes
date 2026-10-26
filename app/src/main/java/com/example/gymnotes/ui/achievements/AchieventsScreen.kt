@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -81,22 +87,23 @@ fun AchievementsScreen(
 fun ShowPlaceholderAchievements() {
     Column(
         modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(R.string.empty_gymnastics),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Spacer(modifier = Modifier.height(16.dp))
         Image(
             alignment = Alignment.Center,
-            painter = painterResource(id = R.drawable.placeholder_empty_gymnastic_512px),
+            painter = painterResource(id = R.drawable.placeholder_empty),
             contentDescription = null
         )
-        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = stringResource(R.string.empty_gymnastics_suggest),
-            style = MaterialTheme.typography.titleLarge
+            text = stringResource(R.string.empty_list),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.empty_achievements_suggest),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
         )
     }
 }
@@ -110,11 +117,9 @@ fun ShowAchievements(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(listOfAchievements) { achievement ->
-            MakeTitleRow(
+            ShowAchievements(
                 gymName = achievement.gymnasticName,
-                category = achievement.category
-            )
-            MakeDataRow(
+                category = achievement.category,
                 maxHeft = achievement.heft,
                 reps = achievement.reps
             )
@@ -123,9 +128,11 @@ fun ShowAchievements(
 }
 
 @Composable
-fun MakeTitleRow(
+fun ShowAchievements(
     gymName: String,
-    category: String
+    category: String,
+    maxHeft: String,
+    reps: String
 ) {
     val icon = when(category) {
         stringResource(R.string.hands) -> R.drawable.ic_hand_48_px
@@ -133,59 +140,70 @@ fun MakeTitleRow(
         stringResource(R.string.back) -> R.drawable.ic_back_48_px
         else -> R.drawable.ic_leg_48_px
     }
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
         ) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = gymName,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleMedium
             )
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(48.dp),
+                    shape = CircleShape,
+                    tonalElevation = 4.dp
+                ) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = null
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = maxHeft,
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(R.string.heft_max),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Spacer(modifier = Modifier.width(24.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = reps,
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = stringResource(R.string.reps).lowercase(),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.heft_max),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = stringResource(R.string.reps),
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
-    }
-}
-
-@Composable
-fun MakeDataRow(
-    maxHeft: String,
-    reps: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = maxHeft,
-            style = MaterialTheme.typography.titleLarge
-        )
-        Text(
-            text = reps,
-            style = MaterialTheme.typography.titleLarge
-        )
     }
 }

@@ -75,7 +75,7 @@ fun NoteItemHeader(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     text = gymName,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
                 Icon(
@@ -102,15 +102,15 @@ fun MakeTitleRow() {
     ) {
         Text(
             text = stringResource(R.string.sets),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium
         )
         Text(
             text = stringResource(R.string.reps),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium
         )
         Text(
             text = stringResource(R.string.heft),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }

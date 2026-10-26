@@ -131,6 +131,7 @@ object ButtonsLib {
                             if (expanded) iconIdClose else iconIdAdd
                         ),
                         contentDescription = null,
+                        tint = if (expanded) Color.White else MaterialTheme.colorScheme.primary
                     )
                 }
             }

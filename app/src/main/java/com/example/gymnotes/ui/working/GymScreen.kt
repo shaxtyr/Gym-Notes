@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
@@ -128,28 +130,11 @@ fun GymScreen(
             TopAppBar(
                 windowInsets = WindowInsets(0,0,0,0),
                 title = {
-                    Column(modifier = Modifier
-                        .padding(vertical = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.choose_gym),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SingleChoiceSegmentedButtonRow {
-                            fabItems.forEachIndexed { index, item ->
-                                SegmentedButton(
-                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = fabItems.size),
-                                    selected = index == selectedIndex,
-                                    onClick = {
-                                        gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(item.text))
-                                    },
-                                    label = { Text(item.text) }
-                                )
-                            }
-                        }
-                    }
+                    Text(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        text = stringResource(R.string.choose_gym),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -166,10 +151,23 @@ fun GymScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier
+        Column(modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding)) {
-
+            .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.padding(8.dp)) {
+                fabItems.forEachIndexed { index, item ->
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = fabItems.size),
+                        selected = index == selectedIndex,
+                        onClick = {
+                            gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(item.text))
+                        },
+                        label = { Text(item.text) }
+                    )
+                }
+            }
             if (state.gymItems.isEmpty()) {
                 ShowEmptyGymnasticsPlaceHolder()
             } else {
@@ -185,13 +183,14 @@ fun GymScreen(
                     }
                 )
             }
-            Box(
-                modifier = Modifier.align(Alignment.Center)
-            ) {
+            Box {
                 SnackbarHost(hostState = snackbarHostState) { data ->
                     Snackbar(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .align(Alignment.Center),
                         snackbarData = data,
-                        shape = MaterialTheme.shapes.small,
+                        shape = MaterialTheme.shapes.medium,
                         containerColor = if (state.validation == GymInfo.Success || state.validation == GymInfo.SuccessGym || state.validation == GymInfo.SuccessNote) {
                             Color.Green
                         } else {
@@ -202,26 +201,6 @@ fun GymScreen(
                 }
             }
         }
-
-        // Затемнение (overlay)
-        if (state.isFabPressed) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    //.clickable { onIntent(ScreenIntent.CloseFabMenu) } // закрыть по тапу вне меню
-            )
-        }
-
-        // FAB Menu (поверх затемнения)
-        /*if (state.isFabPressed) {
-            FabMenu(
-                items = fabItems,
-                onItemClick = { item -> onIntent(ScreenIntent.FabMenuItemClicked(item)) },
-                position = FabMenuPosition.BottomEnd,
-                offset = Offset(0f, -200f)
-            )
-        }*/
         AddGymnasticDialogForCategory(
             visible = state.isAddGymDialogVisible,
             validationMessage = when(state.validation) {
@@ -238,8 +217,6 @@ fun GymScreen(
                     category = state.categoryForCreating,
                     gymnastic = gymnasticName
                 ))
-
-                GymEffects.ShowInfo(GymInfo.SuccessGym)
             },
             onDismission = {
                 gymViewModel.handleIntent(GymIntent.HideAddGymDialog)
@@ -285,7 +262,7 @@ fun GymScreen(
                 gymViewModel.handleIntent(GymIntent.HideRemoveGymDialog)
             },
             onDismission = { gymViewModel.handleIntent(GymIntent.HideRemoveGymDialog) },
-            title = state.categoryForWatching
+            title = stringResource(R.string.remove_gym)
         )
 
     }
@@ -295,22 +272,23 @@ fun GymScreen(
 fun ShowEmptyGymnasticsPlaceHolder() {
     Column(
         modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.empty_gymnastics),
-            style = MaterialTheme.typography.titleLarge
+            text = stringResource(R.string.empty_list),
+            style = MaterialTheme.typography.titleMedium
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Image(
-            alignment = Alignment.Center,
-            painter = painterResource(id = R.drawable.placeholder_empty_gymnastic_512px),
-            contentDescription = null
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stringResource(R.string.empty_gymnastics_suggest),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+        )
+        Image(
+            alignment = Alignment.Center,
+            painter = painterResource(id = R.drawable.placeholder_empty),
+            contentDescription = null
         )
     }
 }
@@ -339,11 +317,12 @@ fun GymnasticItem(
     onItemLongClick: (Gymnastic) -> Unit
 ) {
     Surface(
+        //color = MaterialTheme.colorScheme.background,
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
-                vertical = 2.dp
+                vertical = 4.dp
             )
             .combinedClickable(
                 onClick = { onItemClick(gymnastic) },
@@ -356,7 +335,7 @@ fun GymnasticItem(
             text = gymnastic.name,
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }

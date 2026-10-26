@@ -152,7 +152,8 @@ class GymViewModel(
             try {
                 noteInteractor.addNote(reps, heft, gymnastic)
                 updateState { copy(
-                    isAddGymDetailsDialogVisible = false
+                    isAddGymDetailsDialogVisible = false,
+                    validation = GymInfo.Success
                 ) }
                 sendEffect(GymEffects.ShowInfo(GymInfo.SuccessNote))
             } catch (e: Exception) {
@@ -164,12 +165,10 @@ class GymViewModel(
     private fun addGym(category: String, gymnasticName: String) {
         launch {
             if (gymnasticName.isBlank()) {
-                //sendEffect(GymEffects.ShowInfo(GymInfo.GymNameEmpty))
                 updateState { copy(validation = GymInfo.GymNameEmpty) }
                 return@launch
             }
             if (gymnasticName.length > GYM_NAME_MAX) {
-                //sendEffect(GymEffects.ShowInfo(GymInfo.GymNameOver))
                 updateState { copy(validation = GymInfo.GymNameOver) }
                 return@launch
             }
@@ -181,6 +180,7 @@ class GymViewModel(
                         categoryForWatching = category,
                         gymItems = currentGymnastics,
                         isAddGymDialogVisible = false,
+                        validation = GymInfo.Success
                     )
                 }
                 sendEffect(GymEffects.ShowInfo(GymInfo.SuccessGym))

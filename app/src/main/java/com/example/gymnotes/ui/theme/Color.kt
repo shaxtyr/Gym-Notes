@@ -15,6 +15,7 @@ val onTertiaryLight = Color(0xFF221800)
 
 val backgroundLight = Color(0xFFF5F5F5)
 val surfaceLight = Color.White
+val surfaceContainerLight = Color.White
 val onSurfaceLight = Color(0xFF212121)
 
 val outlineLight = Color(0xFFCCCCCC)
@@ -33,9 +34,11 @@ val onSecondaryDark = Color.White
 val tertiaryDark = Color(0xFFFFA019)
 val onTertiaryDark = Color(0xFF332200)
 
-val backgroundDark = Color(0xFF121212)
+val backgroundDark = Color(0xFF19283A)
+//val backgroundDark = Color(0xFF121212)
 //val backgroundDark = Color(0xFF1F4E5B)
 val surfaceDark = Color(0xFF1E1E1F)
+val surfaceContainerDark = Color.Gray
 val onSurfaceDark = Color.White
 
 val outlineDark = Color(0xFF424242)
