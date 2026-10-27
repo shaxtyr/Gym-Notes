@@ -1,6 +1,5 @@
 package com.example.gymnotes.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -22,7 +21,9 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = onTertiaryDark,
     background = backgroundDark,
     surface = surfaceDark,
-    //onSecondaryContainer = surfaceContainerDark,
+    tertiaryContainer = tertiaryContainerDark,
+    onTertiaryContainer = onTertiaryContainerDark,
+    surfaceContainer = surfaceContainerDark,
     onSurface = onSurfaceDark,
     outline = outlineDark,
     onError = onErrorDark,
@@ -40,7 +41,8 @@ private val LightColorScheme = lightColorScheme(
     onTertiary = onTertiaryLight,
     background = backgroundLight,
     surface = surfaceLight,
-    //onSecondaryContainer = surfaceContainerLight,
+    tertiaryContainer = tertiaryContainerLight,
+    surfaceContainer = surfaceContainerLight,
     onSurface = onSurfaceLight,
     outline = outlineLight,
     onError = onErrorLight,

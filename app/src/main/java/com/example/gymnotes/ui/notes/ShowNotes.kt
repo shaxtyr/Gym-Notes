@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -72,6 +73,7 @@ fun NoteItemHeader(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Text(
+                    modifier = Modifier.weight(1f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     text = gymName,
@@ -79,6 +81,7 @@ fun NoteItemHeader(
                     fontWeight = FontWeight.Bold,
                 )
                 Icon(
+                    modifier = Modifier.size(24.dp),
                     painter = painterResource(icon),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant

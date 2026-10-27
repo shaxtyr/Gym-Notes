@@ -7,6 +7,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,8 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -300,8 +305,9 @@ fun ShowGymnasticsContent(
     onItemLongClick: (Gymnastic) -> Unit
 ) {
     LazyColumn {
-        items(items = listOfGymnastic) { gymnastic ->
+        items(items = listOfGymnastic) {  gymnastic ->
             GymnasticItem(
+                index = (listOfGymnastic.indexOf(gymnastic) + 1).toString(),
                 gymnastic = gymnastic,
                 onItemClick = { onItemClick(gymnastic) },
                 onItemLongClick = { onItemLongClick(gymnastic) }
@@ -312,30 +318,33 @@ fun ShowGymnasticsContent(
 
 @Composable
 fun GymnasticItem(
+    index: String,
     gymnastic: Gymnastic,
     onItemClick: (Gymnastic) -> Unit,
     onItemLongClick: (Gymnastic) -> Unit
 ) {
-    Surface(
-        //color = MaterialTheme.colorScheme.background,
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
-                vertical = 4.dp
+                vertical = 6.dp
             )
             .combinedClickable(
                 onClick = { onItemClick(gymnastic) },
                 onLongClick = { onItemLongClick(gymnastic) }
             ),
-        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.medium
     ) {
         Text(
-            modifier = Modifier.padding(8.dp),
-            text = gymnastic.name,
+            modifier = Modifier.padding(12.dp),
+            text = index + ". " + gymnastic.name,
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium
         )
     }
 }
