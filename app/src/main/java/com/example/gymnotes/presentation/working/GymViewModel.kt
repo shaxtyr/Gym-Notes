@@ -1,36 +1,51 @@
 package com.example.gymnotes.presentation.working
 
+import android.annotation.SuppressLint
+import androidx.lifecycle.viewModelScope
 import com.example.gymnotes.domain.interactor.GymnasticInteractor
 import com.example.gymnotes.domain.interactor.NoteInteractor
 import com.example.gymnotes.domain.model.Gymnastic
+import com.example.gymnotes.domain.model.TimerMode
 import com.example.gymnotes.presentation.BaseViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 data class GymState(
-    val currentGymnastic: Gymnastic,
+    val currentGymnastic: Gymnastic? = null,
+    val timerMode: TimerMode = TimerMode.Stop,
+    val currentTime: String = "00:00",
     val categoryForWatching: String = "Руки",
     val categoryForCreating: String = "",
     val gymItems: List<Gymnastic> = emptyList(),
+    val isTimerActive: Boolean = false,
     val isFabPressed: Boolean = false,
     val isAddGymDialogVisible: Boolean = false,
     val isAddGymDetailsDialogVisible: Boolean = false,
     val isRenameGymDialogVisible: Boolean = false,
     val isRemoveGymDialogVisible: Boolean = false,
-    val isGymSelectedVisible: Boolean = false,
-    val validation: GymInfo = GymInfo.Success
+    val validation: GymInfo = GymInfo.Success,
+    val newGymName: String = ""
 )
 
 sealed class GymIntent {
     data class AddNote(val reps: String, val heft: String, val gym: Gymnastic) : GymIntent()
     data class LoadGymsByCategory(val category: String) : GymIntent()
     data class AddGym(val category: String, val gymnastic: String) : GymIntent()
+    data class RenameGym(val id: String, val newName: String) : GymIntent()
     data class RemoveGym(val id: String) : GymIntent()
     data class SelectGym(val gymnastic: Gymnastic) : GymIntent()
+    data class SetNewName(val newGymName: String) : GymIntent()
     data class ShowAddGymDialogForCategory(val category: String) : GymIntent()
     data object ToggleFabMenu : GymIntent()
+    data object ToggleTimerActive : GymIntent()
     data object HideAddGymDialog : GymIntent()
     data object ShowAddGymDetailsDialog : GymIntent()
     data object HideAddGymDetailsDialog : GymIntent()
+    data object ShowRenameGymDialog : GymIntent()
+    data object HideRenameGymDialog : GymIntent()
     data object ShowRemoveGymDialog : GymIntent()
     data object HideRemoveGymDialog : GymIntent()
     data object DefaultValidation : GymIntent()
@@ -69,22 +84,44 @@ class GymViewModel(
         category = ""
     )
 )) {
+    private var timerJob: Job? = null
 
     override fun handleIntent(intent: GymIntent) {
         when(intent) {
             is GymIntent.AddNote -> addNote(intent.reps, intent.heft, intent.gym)
             is GymIntent.LoadGymsByCategory -> loadGyms(intent.category)
             is GymIntent.AddGym -> addGym(intent.category, intent.gymnastic)
+            is GymIntent.RenameGym -> renameGym(intent.id, intent.newName)
             is GymIntent.RemoveGym -> removeGym(intent.id)
+            is GymIntent.SetNewName -> setNewName(intent.newGymName)
             is GymIntent.SelectGym -> onGymSelected( intent.gymnastic)
             is GymIntent.ShowAddGymDialogForCategory -> showAddGymDialogForCategory(intent.category)
             GymIntent.ToggleFabMenu -> toggleFabMenu()
+            GymIntent.ToggleTimerActive -> toggleTimerActive()
             GymIntent.HideAddGymDialog -> hideAddGymDialog()
             GymIntent.ShowAddGymDetailsDialog -> showAddGymDetailsDialog()
             GymIntent.HideAddGymDetailsDialog -> hideAddGymDetailsDialog()
+            GymIntent.ShowRenameGymDialog -> showRenameGymDialog()
+            GymIntent.HideRenameGymDialog -> hideRenameGymDialog()
             GymIntent.ShowRemoveGymDialog -> showRemoveGymDialog()
             GymIntent.HideRemoveGymDialog -> hideRemoveGymDialog()
             GymIntent.DefaultValidation -> defaultValidation()
+        }
+    }
+
+    private fun renameGym(id: String, newName: String) {
+        launch {
+            try {
+                workingInteractor.renameGymnastic(id, newName)
+                val newGymnastics = workingInteractor.getGymnasticsByCategory(currentState.currentGymnastic!!.category).first()
+                updateState { copy(
+                    gymItems = newGymnastics,
+                    newGymName = ""
+                ) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                sendEffect(GymEffects.ShowInfo(GymInfo.RemoveError))
+            }
         }
     }
     private fun removeGym(id: String) {
@@ -97,7 +134,7 @@ class GymViewModel(
                 updateState {
                     copy(
                         gymItems = newGymnastics,
-                        isGymSelectedVisible = false
+                        currentGymnastic = null
                     )
                 }
             } catch (e: Exception) {
@@ -190,16 +227,15 @@ class GymViewModel(
             }
         }
     }
-
     private fun onGymSelected(gymnastic: Gymnastic) {
-        updateState { copy(
-            currentGymnastic = gymnastic,
-            isGymSelectedVisible = true
-        ) }
+        updateState { copy(currentGymnastic = gymnastic) }
     }
-
     private fun toggleFabMenu() {
         updateState { copy(isFabPressed = !isFabPressed) }
+    }
+
+    private fun setNewName(newGymName: String) {
+        updateState { copy(newGymName = newGymName) }
     }
 
     private fun showAddGymDialogForCategory(category: String) {
@@ -219,6 +255,14 @@ class GymViewModel(
         updateState { copy(isAddGymDetailsDialogVisible = false) }
     }
 
+    private fun showRenameGymDialog() {
+        updateState { copy(isRenameGymDialogVisible = true) }
+    }
+
+    private fun hideRenameGymDialog() {
+        updateState { copy(isRenameGymDialogVisible = false) }
+    }
+
     private fun showRemoveGymDialog() {
         updateState { copy(isRemoveGymDialogVisible = true) }
     }
@@ -229,6 +273,60 @@ class GymViewModel(
 
     private fun defaultValidation() {
         updateState { copy(validation = GymInfo.Success) }
+    }
+
+    private fun toggleTimerActive() {
+        updateState { copy(isTimerActive = !state.value.isTimerActive) }
+    }
+
+    fun toggleTimer() {
+        when(currentState.timerMode) {
+            is TimerMode.Work -> pauseTimer()
+            else -> startTimer()
+        }
+    }
+     private fun startTimer() {
+         timerJob?.cancel()
+         timerJob = null
+         updateState { copy(timerMode = TimerMode.Work) }
+         timerJob = viewModelScope.launch {
+             var currentSeconds = parseTimeToSeconds(currentState.currentTime)
+             while (currentState.timerMode is TimerMode.Work) {
+                 delay(1000.milliseconds) // Ждем 1 секунду
+                 currentSeconds++
+                 val formatted = formatSecondsToTime(currentSeconds)
+                 updateState { copy(currentTime = formatted) }
+             }
+        }
+    }
+    private fun pauseTimer() {
+        updateState { copy(timerMode = TimerMode.Pause) }
+    }
+
+    fun resetTimer() {
+        timerJob?.cancel()
+        timerJob = null
+        updateState { copy(
+            timerMode = TimerMode.Stop,
+            currentTime = "00:00"
+        ) }
+    }
+
+    private fun parseTimeToSeconds(timeString: String): Int {
+        val parts = timeString.split(":")
+        if (parts.size == 2) {
+            val minutes = parts[0].toIntOrNull() ?: 0
+            val seconds = parts[1].toIntOrNull() ?: 0
+            return minutes * 60 + seconds
+        }
+        return 0
+    }
+
+    @SuppressLint("DefaultLocale")
+    private fun formatSecondsToTime(totalSeconds: Int): String {
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
     companion object {

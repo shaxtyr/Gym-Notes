@@ -27,6 +27,10 @@ class GymnasticRepositoryImpl(
         ))
     }
 
+    override suspend fun renameGymnastic(id: String, newGymnasticName: String) {
+        database.gymnasticDao().updateGymnasticName(id, newGymnasticName)
+    }
+
     override fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>> = flow {
         val gymnasticsByCategory = database.gymnasticDao().getGymnasticsByCategory(category)
         emit(gymnasticsByCategory.map { gymnasticEntity -> gymnasticDbConverter.fromEntityToModel(gymnasticEntity) })

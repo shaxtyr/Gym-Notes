@@ -4,21 +4,28 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -31,7 +38,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.NotesDateGridItem
 import com.example.gymnotes.presentation.notes.NotesDateEffect
@@ -90,7 +100,7 @@ fun NotesDateScreen(
                         )
                     }
                     IconButton(
-                        onClick = { viewModel.handleIntent(NotesDateIntent.ShowHelp) },
+                        onClick = { viewModel.handleIntent(NotesDateIntent.ShowPopupHelping) },
                         modifier = Modifier.padding(
                             start = 4.dp,
                             top = 12.dp,
@@ -100,7 +110,7 @@ fun NotesDateScreen(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.outline_help_24),
-                            contentDescription = null,
+                            contentDescription = null
                         )
                     }
                 }
@@ -111,6 +121,9 @@ fun NotesDateScreen(
             .fillMaxSize()
             .padding(innerPadding)) {
 
+            if (state.isPopupHelpingVisible) {
+                ShowPopup(onClick = { viewModel.handleIntent(NotesDateIntent.HidePopupHelping) })
+            }
             if (state.gridNotesDateItems.isEmpty()) {
                 ShowEmptyNotesPlaceHolder()
             } else {
@@ -201,6 +214,41 @@ fun ShowDateNotesContent(
                         onItemLongClick = { onItemLongClick(item.addedAt) },
                     )
                 }
+        }
+    }
+}
+@Composable
+fun ShowPopup(onClick: () -> Unit) {
+    Popup(
+        alignment = Alignment.TopCenter
+    ) {
+        Card(
+            shape = MaterialTheme.shapes.medium,
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = stringResource(R.string.welcome),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = TextUnit.Unspecified,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    text = stringResource(R.string.help)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onClick) {
+                        Text(text = stringResource(R.string.got))
+                    }
+                }
+            }
         }
     }
 }

@@ -140,6 +140,44 @@ fun AddDetailsGymnasticDialog(
     }
 }
 @Composable
+fun RenameListDialog(
+    visible: Boolean,
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    onDismission: () -> Unit,
+    name: String,
+    onNameChange: (String) -> Unit
+) {
+    if (visible) {
+        AlertDialog(
+            modifier = Modifier.width(width = 312.dp),
+            onDismissRequest = onDismissRequest,
+            title = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = stringResource(R.string.gym_new_name_empty))
+                    Spacer(Modifier.height(24.dp))
+                    OutlinedTextFieldWithFocus(
+                        value = name,
+                        onValueChange = onNameChange,
+                        labelTextId = R.string.dialog_name_gymnastic,
+                        placeHolderTextId = R.string.dialog_enter_gymnastic,
+                    )
+                    Spacer(Modifier.height(24.dp))
+                }
+            },
+            confirmButton = {
+                ButtonsLib.TextButton(onClick = onConfirmation, R.string.rename)
+            },
+            dismissButton = {
+                ButtonsLib.TextButton(onClick = onDismission, R.string.cancel)
+            }
+        )
+    }
+}
+@Composable
 fun RemoveDialog(
     visible: Boolean,
     onDismissRequest: () -> Unit,

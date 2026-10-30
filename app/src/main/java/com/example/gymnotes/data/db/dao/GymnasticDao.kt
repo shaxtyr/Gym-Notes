@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.gymnotes.data.db.entity.GymnasticEntity
 
 @Dao
@@ -14,6 +15,9 @@ interface GymnasticDao {
 
     @Query("SELECT * FROM gymnastic_table WHERE category = :category")
     suspend fun getGymnasticsByCategory(category: String): List<GymnasticEntity>
+
+    @Query("UPDATE gymnastic_table SET name = :newName WHERE id = :id")
+    suspend fun updateGymnasticName(id: String, newName: String)
 
     @Query("DELETE FROM gymnastic_table WHERE id = :id")
     suspend fun remove(id: String)

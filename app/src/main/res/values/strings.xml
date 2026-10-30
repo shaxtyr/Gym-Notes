@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Gym Notes</string>
+    <string name="welcome">Привет, друг!</string>
+    <string name="got">Понятно</string>
     <string name="notes">Заметки</string>
     <string name="achievements">Достижения</string>
     <string name="start_working">Тренировка</string>
+    <string name="timer">Таймер</string>
 
     <string name="hands">Руки</string>
     <string name="chest">Грудь</string>
@@ -11,6 +14,7 @@
 
     <string name="create">Создать</string>
     <string name="cancel">Отмена</string>
+    <string name="rename">Переименовать</string>
     <string name="remove">Удалить</string>
     <string name="yes">Да</string>
 
@@ -50,6 +54,7 @@
     <string name="edit_note_error">Не удалось изменить заметку</string>
 
     <string name="gym_name_empty">Введите название упражнения</string>
+    <string name="gym_new_name_empty">Введите новое название упражнения</string>
     <string name="gym_name_over">Слишком длинное название</string>
 
     <string name="reps_null_error">Количество повторов должно быть больше 0</string>
@@ -57,5 +62,11 @@
     <string name="heft_null_error">Вес должен быть больше 0"</string>
     <string name="heft_empty_error">Заполните графу \"Вес\"</string>
     <string name="reps_max_error">Количество повторов должно быть меньше 10000</string>
-    <string name="heft_max_error">Вес должен быть меньше 100 тонн"</string>
+    <string name="heft_max_error">Вес должен быть меньше 100 тонн</string>
+
+    <string name="start_timer">Старт</string>
+    <string name="reset_timer">Сброс</string>
+    <string name="pause_timer">Пауза</string>
+
+    <string name="help">Это приложение для отслеживания прогресса твоих тренировок.\n\n1. Экран \"Заметки\" отображает дни твоих тренировок. Для детальной информации переходи по дате.\n2. Экран \"Тренировка\" показывает все упражнения, разбитые по категориям. Данные списки ты формируешь сам.\n3. Экран \"Достижения\" покажет твои лучшие результаты по каждому из упражнений.\n\np.s.\nКороткое нажатие - выбор элемента.\nДолгое нажатие - удаление элемента.</string>
 </resources>

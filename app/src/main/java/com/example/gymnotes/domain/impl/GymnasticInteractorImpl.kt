@@ -14,6 +14,10 @@ class GymnasticInteractorImpl(val gymnasticRepository: GymnasticRepository) : Gy
         gymnasticRepository.addGymnastic(category, gymnasticName)
     }
 
+    override suspend fun renameGymnastic(id: String, newGymnasticName: String) {
+        gymnasticRepository.renameGymnastic(id, newGymnasticName)
+    }
+
     override fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>> {
         return gymnasticRepository.getGymnasticsByCategory(category)
     }

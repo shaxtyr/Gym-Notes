@@ -10,9 +10,9 @@ data class NotesDateState(
     val gridNotesDateItems: List<NotesDateGridItem> = emptyList(),
     val currentGridNotesDateItems: NotesDateGridItem.ContentNotesDateItem,
     val isDarkTheme: Boolean = false,
-    val isShowingHelp: Boolean = false,
     val isDateSelectedVisible: Boolean = false,
     val isRemoveDateDialogVisible: Boolean = false,
+    val isPopupHelpingVisible: Boolean = false,
     val dateToRemove: String = "",
     val error: String? = null
 )
@@ -20,13 +20,14 @@ data class NotesDateState(
 sealed class NotesDateIntent {
     data object LoadNotesDate : NotesDateIntent()
     data object ToggleTheme : NotesDateIntent()
-    data object ShowHelp : NotesDateIntent()
     data class SelectDate(val addedAt: String) : NotesDateIntent()
     data class RemoveNotesDate(val addedAt: String) : NotesDateIntent()
     data class EditNotesDate(val id: String) : NotesDateIntent()
     data class ShowNotes(val addedAt: String) : NotesDateIntent()
     data object ShowRemoveDateDialog : NotesDateIntent()
     data object HideRemoveDateDialog : NotesDateIntent()
+    data object ShowPopupHelping : NotesDateIntent()
+    data object HidePopupHelping : NotesDateIntent()
 }
 
 sealed class NotesDateEffect {
@@ -61,9 +62,10 @@ class NotesDateViewModel(
         when(intent) {
             NotesDateIntent.LoadNotesDate -> loadDatesFromNotes()
             NotesDateIntent.ToggleTheme -> toggleTheme()
-            NotesDateIntent.ShowHelp -> showHelp()
             NotesDateIntent.ShowRemoveDateDialog -> showRemoveDateDialog()
             NotesDateIntent.HideRemoveDateDialog -> hideRemoveDateDialog()
+            NotesDateIntent.ShowPopupHelping -> showPopupHelping()
+            NotesDateIntent.HidePopupHelping -> hidePopupHelping()
             is NotesDateIntent.RemoveNotesDate -> removeNotesDate(intent.addedAt)
             is NotesDateIntent.EditNotesDate -> editNotesDate(intent.id)
             is NotesDateIntent. ShowNotes -> showNotes(intent.addedAt)
@@ -133,18 +135,12 @@ class NotesDateViewModel(
         }
         updateState { copy(isDarkTheme = newTheme) }
     }
-
-    private fun showHelp() {
-    }
-
     private fun editNotesDate(id: String) {
 
     }
-
     private fun showNotes(addedAt: String) {
         sendEffect(NotesDateEffect.NavigateToNotes(addedAt))
     }
-
     private fun showRemoveDateDialog() {
         updateState { copy(isRemoveDateDialogVisible = true) }
     }
@@ -156,6 +152,12 @@ class NotesDateViewModel(
             dateToRemove = addedAt,
             isDateSelectedVisible = true
         ) }
+    }
+    private fun showPopupHelping() {
+        updateState { copy(isPopupHelpingVisible = true) }
+    }
+    private fun hidePopupHelping() {
+        updateState { copy(isPopupHelpingVisible = false) }
     }
 
 
