@@ -40,9 +40,14 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxDefaults
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -106,9 +111,9 @@ fun GymScreen(
     val selectedIndex = fabItems.indexOfFirst { it.text == state.categoryForWatching }
         .takeIf { it != -1 } ?: 0
 
-    LaunchedEffect(key1 = state.categoryForWatching) {
+    /*LaunchedEffect(key1 = state.categoryForWatching) {
         gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(state.categoryForWatching))
-    }
+    }*/
 
     LaunchedEffect(key1 = Unit) {
         gymViewModel.effect.collect { effect ->
@@ -117,6 +122,7 @@ fun GymScreen(
                     val message = when(effect.info) {
                         is GymInfo.AddGymError -> context.getString(R.string.add_gymnastic_error)
                         is GymInfo.RemoveError -> context.getString(R.string.remove_gymnastic_error)
+                        is GymInfo.RenameError -> context.getString(R.string.rename_gymnastic_error)
                         is GymInfo.LoadError -> context.getString(R.string.get_gymnastics_error)
                         is GymInfo.AddNoteError -> context.getString(R.string.add_note_error)
                         is GymInfo.GymNameEmpty -> context.getString(R.string.gym_name_empty)
@@ -127,8 +133,10 @@ fun GymScreen(
                         is GymInfo.HeftEmpty -> context.getString(R.string.heft_empty_error)
                         is GymInfo.HeftZero -> context.getString(R.string.heft_null_error)
                         is GymInfo.HeftOver -> context.getString(R.string.heft_max_error)
-                        is GymInfo.SuccessGym -> context.getString(R.string.add_gymnastic_success, state.categoryForCreating)
-                        is GymInfo.SuccessNote -> context.getString(R.string.add_note_success)
+                        is GymInfo.SuccessAddGym -> context.getString(R.string.add_gymnastic_success, state.categoryForCreating)
+                        is GymInfo.SuccessRemoveGym -> context.getString(R.string.remove_gymnastic_success, state.categoryForCreating)
+                        is GymInfo.SuccessRenameGym -> context.getString(R.string.rename_gymnastic_success)
+                        is GymInfo.SuccessAddNote -> context.getString(R.string.add_note_success)
                         is GymInfo.Success -> {}
                     }
                     snackbarHostState.showSnackbar(
@@ -197,27 +205,28 @@ fun GymScreen(
                             shape = SegmentedButtonDefaults.itemShape(index = index, count = fabItems.size),
                             selected = index == selectedIndex,
                             onClick = {
-                                gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(item.text))
+                                gymViewModel.handleIntent(GymIntent.ChooseWatchingCategory(item.text))
                             },
                             label = { Text(item.text) }
                         )
                     }
                 }
-                if (state.gymItems.isEmpty()) {
+                if (gymViewModel.filteredGymItems.isEmpty()) {
                     ShowEmptyGymnasticsPlaceHolder()
                 } else {
                     ShowGymnasticsContent(
-                        listOfGymnastic = state.gymItems,
+                        listOfGymnastic = gymViewModel.filteredGymItems,
                         onItemClick = { gymnastic ->
                             gymViewModel.handleIntent(GymIntent.SelectGym(gymnastic))
                             gymViewModel.handleIntent(GymIntent.ShowAddGymDetailsDialog)
                         },
-                        onItemLongClick = { gymnastic ->
+                        removeGym = { gymnastic ->
                             gymViewModel.handleIntent(GymIntent.SelectGym(gymnastic))
                             gymViewModel.handleIntent(GymIntent.ShowRemoveGymDialog)
                         },
-                        onDoubleClick = { gymnastic ->
+                        renameGym = { gymnastic ->
                             gymViewModel.handleIntent(GymIntent.SelectGym(gymnastic))
+                            gymViewModel.handleIntent(GymIntent.SetNewName(gymnastic.name))
                             gymViewModel.handleIntent(GymIntent.ShowRenameGymDialog)
                         }
                     )
@@ -230,7 +239,13 @@ fun GymScreen(
                                 .align(Alignment.Center),
                             snackbarData = data,
                             shape = MaterialTheme.shapes.medium,
-                            containerColor = if (state.validation == GymInfo.Success || state.validation == GymInfo.SuccessGym || state.validation == GymInfo.SuccessNote) {
+                            containerColor = if (
+                                state.validation == GymInfo.Success ||
+                                state.validation == GymInfo.SuccessAddGym ||
+                                state.validation == GymInfo.SuccessRenameGym ||
+                                state.validation == GymInfo.SuccessRemoveGym ||
+                                state.validation == GymInfo.SuccessAddNote
+                                ) {
                                 Color.Green
                             } else {
                                 Color.Red
@@ -243,8 +258,7 @@ fun GymScreen(
                 ShowTimer(
                     time = state.currentTime,
                     onToggle = { gymViewModel.toggleTimer() },
-                    onReset = { gymViewModel.resetTimer() },
-                    mode = state.timerMode
+                    onReset = { gymViewModel.resetTimer() }
                 )
             }
         }
@@ -302,11 +316,12 @@ fun GymScreen(
         RenameListDialog(
             visible = state.isRenameGymDialogVisible,
             onDismissRequest = { gymViewModel.handleIntent(GymIntent.HideRenameGymDialog) },
-            onConfirmation = {
+            onConfirmation = { newName ->
                 gymViewModel.handleIntent(GymIntent.RenameGym(
                     id = state.currentGymnastic!!.id,
-                    newName = state.newGymName
-                ))
+                    newName = newName
+                    )
+                )
                 gymViewModel.handleIntent(GymIntent.HideRenameGymDialog)
             },
             onDismission = { gymViewModel.handleIntent(GymIntent.HideRenameGymDialog) },
@@ -360,18 +375,65 @@ fun ShowEmptyGymnasticsPlaceHolder() {
 fun ShowGymnasticsContent(
     listOfGymnastic: List<Gymnastic>,
     onItemClick: (Gymnastic) -> Unit,
-    onItemLongClick: (Gymnastic) -> Unit,
-    onDoubleClick: (Gymnastic) -> Unit
+    removeGym: (Gymnastic) -> Unit,
+    renameGym: (Gymnastic) -> Unit
 ) {
     LazyColumn {
-        items(items = listOfGymnastic) {  gymnastic ->
-            GymnasticItem(
-                index = (listOfGymnastic.indexOf(gymnastic) + 1).toString(),
-                gymnastic = gymnastic,
-                onItemClick = { onItemClick(gymnastic) },
-                onItemLongClick = { onItemLongClick(gymnastic) },
-                onDoubleClick = { onDoubleClick(gymnastic) }
+        items(
+            items = listOfGymnastic,
+            key = { gym -> gym.id }
+        ) {  gymnastic ->
+            val swipeState = rememberSwipeToDismissBoxState(
+                initialValue = SwipeToDismissBoxValue.Settled,
+                confirmValueChange = { direction ->
+                    when(direction) {
+                        SwipeToDismissBoxValue.StartToEnd -> {
+                            removeGym(gymnastic)
+                            false
+                        }
+                        SwipeToDismissBoxValue.EndToStart -> {
+                            renameGym(gymnastic)
+                            false
+                        }
+                        else -> false
+                    }
+                },
+                positionalThreshold = SwipeToDismissBoxDefaults.positionalThreshold
             )
+
+            SwipeToDismissBox(
+                state = swipeState,
+                backgroundContent = {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_delete_24),
+                            contentDescription = stringResource(R.string.remove),
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            painter = painterResource(R.drawable.outline_edit_24),
+                            contentDescription = stringResource(R.string.rename),
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enableDismissFromStartToEnd = true,
+                enableDismissFromEndToStart = true,
+                gesturesEnabled = true
+            ) {
+                GymnasticItem(
+                    index = (listOfGymnastic.indexOf(gymnastic) + 1).toString(),
+                    gymnastic = gymnastic,
+                    onItemClick = { onItemClick(gymnastic) }
+                )
+            }
+
         }
     }
 }
@@ -380,9 +442,7 @@ fun ShowGymnasticsContent(
 fun GymnasticItem(
     index: String,
     gymnastic: Gymnastic,
-    onItemClick: (Gymnastic) -> Unit,
-    onItemLongClick: (Gymnastic) -> Unit,
-    onDoubleClick: (Gymnastic) -> Unit
+    onItemClick: (Gymnastic) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -390,12 +450,8 @@ fun GymnasticItem(
             .padding(
                 horizontal = 16.dp,
                 vertical = 6.dp
-            )
-            .combinedClickable(
-                onClick = { onItemClick(gymnastic) },
-                onLongClick = { onItemLongClick(gymnastic) },
-                onDoubleClick = { onDoubleClick(gymnastic) }
             ),
+        onClick = { onItemClick(gymnastic) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = MaterialTheme.shapes.medium
@@ -415,11 +471,12 @@ fun GymnasticItem(
 fun ShowTimer(
     time: String,
     onToggle: () -> Unit,
-    onReset: () -> Unit,
-    mode: TimerMode
+    onReset: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 50.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -433,5 +490,4 @@ fun ShowTimer(
             style = MaterialTheme.typography.displayLarge
         )
     }
-
 }

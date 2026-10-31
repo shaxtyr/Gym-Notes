@@ -8,4 +8,5 @@ interface GymnasticRepository {
     suspend fun addGymnastic(category: String, gymnasticName: String)
     suspend fun renameGymnastic(id: String, newGymnasticName: String)
     fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>>
+    fun getAllGymnastics(): Flow<List<Gymnastic>>
 }

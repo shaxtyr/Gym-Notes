@@ -7,11 +7,15 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.gymnotes.data.db.entity.GymnasticEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GymnasticDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: GymnasticEntity)
+
+    @Query("SELECT * FROM gymnastic_table")
+    fun getAllGymnastics(): Flow<List<GymnasticEntity>>
 
     @Query("SELECT * FROM gymnastic_table WHERE category = :category")
     suspend fun getGymnasticsByCategory(category: String): List<GymnasticEntity>

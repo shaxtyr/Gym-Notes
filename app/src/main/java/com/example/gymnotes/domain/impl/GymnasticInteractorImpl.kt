@@ -21,4 +21,6 @@ class GymnasticInteractorImpl(val gymnasticRepository: GymnasticRepository) : Gy
     override fun getGymnasticsByCategory(category: String): Flow<List<Gymnastic>> {
         return gymnasticRepository.getGymnasticsByCategory(category)
     }
+
+    override fun getAllGymnastics(): Flow<List<Gymnastic>> = gymnasticRepository.getAllGymnastics()
 }

@@ -143,11 +143,20 @@ fun AddDetailsGymnasticDialog(
 fun RenameListDialog(
     visible: Boolean,
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: (String) -> Unit,
     onDismission: () -> Unit,
     name: String,
     onNameChange: (String) -> Unit
 ) {
+    val isEmpty = name.isBlank()
+    val isTooLong = name.length > Borders.GYM_NAME_MAX
+
+    val errorMessage = when {
+        isEmpty -> stringResource(R.string.gym_name_empty)
+        isTooLong -> stringResource(R.string.gym_name_over)
+        else -> null
+    }
+
     if (visible) {
         AlertDialog(
             modifier = Modifier.width(width = 312.dp),
@@ -165,11 +174,20 @@ fun RenameListDialog(
                         labelTextId = R.string.dialog_name_gymnastic,
                         placeHolderTextId = R.string.dialog_enter_gymnastic,
                     )
-                    Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(8.dp))
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
                 }
             },
             confirmButton = {
-                ButtonsLib.TextButton(onClick = onConfirmation, R.string.rename)
+                ButtonsLib.TextButton(onClick = { onConfirmation(name) }, R.string.rename)
             },
             dismissButton = {
                 ButtonsLib.TextButton(onClick = onDismission, R.string.cancel)
@@ -206,4 +224,10 @@ fun RemoveDialog(
             }
         )
     }
+}
+
+object Borders {
+    const val REPS_MAX = 10_000
+    const val HEFT_MAX = 100_000
+    const val GYM_NAME_MAX = 100
 }

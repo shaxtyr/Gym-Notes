@@ -8,6 +8,7 @@ import com.example.gymnotes.domain.model.Gymnastic
 import com.example.gymnotes.domain.repository.GymnasticRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.util.UUID
 
 class GymnasticRepositoryImpl(
@@ -35,4 +36,11 @@ class GymnasticRepositoryImpl(
         val gymnasticsByCategory = database.gymnasticDao().getGymnasticsByCategory(category)
         emit(gymnasticsByCategory.map { gymnasticEntity -> gymnasticDbConverter.fromEntityToModel(gymnasticEntity) })
     }
+
+    override fun getAllGymnastics(): Flow<List<Gymnastic>> =
+        database.gymnasticDao().getAllGymnastics().map {
+            listGymnasticEntity -> listGymnasticEntity.map {
+                gymnastic -> gymnasticDbConverter.fromEntityToModel(gymnastic)
+            }
+        }
 }

@@ -9,6 +9,7 @@ import com.example.gymnotes.domain.model.TimerMode
 import com.example.gymnotes.presentation.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -38,6 +39,7 @@ sealed class GymIntent {
     data class RemoveGym(val id: String) : GymIntent()
     data class SelectGym(val gymnastic: Gymnastic) : GymIntent()
     data class SetNewName(val newGymName: String) : GymIntent()
+    data class ChooseWatchingCategory(val category: String) : GymIntent()
     data class ShowAddGymDialogForCategory(val category: String) : GymIntent()
     data object ToggleFabMenu : GymIntent()
     data object ToggleTimerActive : GymIntent()
@@ -69,31 +71,36 @@ sealed class GymInfo {
     data object AddGymError : GymInfo()
     data object AddNoteError : GymInfo()
     data object RemoveError : GymInfo()
-    data object SuccessGym : GymInfo()
-    data object SuccessNote : GymInfo()
+    data object RenameError : GymInfo()
+    data object SuccessAddGym : GymInfo()
+    data object SuccessRenameGym : GymInfo()
+    data object SuccessRemoveGym : GymInfo()
+    data object SuccessAddNote : GymInfo()
     data object Success : GymInfo()
 }
 
 class GymViewModel(
     private val workingInteractor: GymnasticInteractor,
     private val noteInteractor: NoteInteractor
-) : BaseViewModel<GymState, GymIntent, GymEffects>(GymState(
-    currentGymnastic = Gymnastic(
-        id = "",
-        name = "",
-        category = ""
-    )
-)) {
+) : BaseViewModel<GymState, GymIntent, GymEffects>(GymState()) {
+
     private var timerJob: Job? = null
+    val filteredGymItems: List<Gymnastic>
+        get() = currentState.gymItems.filter { it.category == currentState.categoryForWatching }
+
+    init {
+        loadGyms()
+    }
 
     override fun handleIntent(intent: GymIntent) {
         when(intent) {
             is GymIntent.AddNote -> addNote(intent.reps, intent.heft, intent.gym)
-            is GymIntent.LoadGymsByCategory -> loadGyms(intent.category)
+            is GymIntent.LoadGymsByCategory -> loadGyms()
             is GymIntent.AddGym -> addGym(intent.category, intent.gymnastic)
             is GymIntent.RenameGym -> renameGym(intent.id, intent.newName)
             is GymIntent.RemoveGym -> removeGym(intent.id)
             is GymIntent.SetNewName -> setNewName(intent.newGymName)
+            is GymIntent.ChooseWatchingCategory -> chooseWatchingCategory(intent.category)
             is GymIntent.SelectGym -> onGymSelected( intent.gymnastic)
             is GymIntent.ShowAddGymDialogForCategory -> showAddGymDialogForCategory(intent.category)
             GymIntent.ToggleFabMenu -> toggleFabMenu()
@@ -113,14 +120,11 @@ class GymViewModel(
         launch {
             try {
                 workingInteractor.renameGymnastic(id, newName)
-                val newGymnastics = workingInteractor.getGymnasticsByCategory(currentState.currentGymnastic!!.category).first()
-                updateState { copy(
-                    gymItems = newGymnastics,
-                    newGymName = ""
-                ) }
+                updateState { copy(newGymName = "") }
+                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessRenameGym))
             } catch (e: Exception) {
                 e.printStackTrace()
-                sendEffect(GymEffects.ShowInfo(GymInfo.RemoveError))
+                sendEffect(GymEffects.ShowInfo(GymInfo.RenameError))
             }
         }
     }
@@ -134,25 +138,22 @@ class GymViewModel(
                 updateState {
                     copy(
                         gymItems = newGymnastics,
-                        currentGymnastic = null
+                        //currentGymnastic = null
                     )
                 }
+                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessRemoveGym))
             } catch (e: Exception) {
                 e.printStackTrace()
                 sendEffect(GymEffects.ShowInfo(GymInfo.RemoveError))
             }
         }
     }
-    private fun loadGyms(category: String) {
+
+    private fun loadGyms() {
         launch {
             try {
-                workingInteractor.getGymnasticsByCategory(category).collect { gymnasticsByCategory ->
-                    updateState {
-                        copy(
-                            gymItems = gymnasticsByCategory,
-                            categoryForWatching = category
-                        )
-                    }
+                workingInteractor.getAllGymnastics().collect{ gymnastics ->
+                    updateState { copy(gymItems = gymnastics) }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -192,7 +193,7 @@ class GymViewModel(
                     isAddGymDetailsDialogVisible = false,
                     validation = GymInfo.Success
                 ) }
-                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessNote))
+                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessAddNote))
             } catch (e: Exception) {
                 e.printStackTrace()
                 sendEffect(GymEffects.ShowInfo(GymInfo.AddNoteError))
@@ -220,7 +221,7 @@ class GymViewModel(
                         validation = GymInfo.Success
                     )
                 }
-                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessGym))
+                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessAddGym))
             } catch (e: Exception) {
                 e.printStackTrace()
                 sendEffect(GymEffects.ShowInfo(GymInfo.AddGymError))
@@ -236,6 +237,10 @@ class GymViewModel(
 
     private fun setNewName(newGymName: String) {
         updateState { copy(newGymName = newGymName) }
+    }
+
+    private fun chooseWatchingCategory(category: String) {
+        updateState { copy(categoryForWatching = category) }
     }
 
     private fun showAddGymDialogForCategory(category: String) {
