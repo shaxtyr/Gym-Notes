@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -27,13 +28,16 @@ class NoteRepositoryImpl(
     }
 
     override fun getNotesByDate(addedAt: String): Flow<List<Note>> = flow {
-        val noteByDate = database.noteDao().getNotesByDate(addedAt).sortedBy { it.category }
+        val noteByDate = database.noteDao().getNotesByDate(addedAt)//.sortedBy { it.category }
         emit(noteByDate.map { noteEntity -> noteDbConverter.fromEntityToModel(noteEntity) })
     }
 
     override suspend fun addNote(reps: String, heft: String, gymnastic: Gymnastic) {
+        //val addedAtFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+
         val noteId = UUID.randomUUID().toString()
         val noteAddedAt = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        //val noteAddedAt = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         val notesByCategory = database.noteDao().getNotesByCategory(gymnastic.category).reversed() // инверсия для увеличения sets
         var sets = "1"
         for (item in notesByCategory) {
@@ -72,3 +76,5 @@ class NoteRepositoryImpl(
         return database.noteDao().getUniqueGymNamesFromNotes().sortedBy { it.category }
     }
 }
+
+/*(LocalDateTime.parse(item.addedAt).format(addedAtFormatter) == LocalDateTime.parse(noteAddedAt).format(addedAtFormatter))*/

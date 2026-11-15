@@ -135,7 +135,6 @@ fun NotesDateScreen(
                     onItemLongClick = { addedAt ->
                         viewModel.handleIntent(NotesDateIntent.SelectDate(addedAt))
                         viewModel.handleIntent(NotesDateIntent.ShowRemoveDateDialog)
-                        //viewModel.handleIntent(NotesDateIntent.RemoveNotesDate(addedAt))
                     }
                 )
             }
@@ -210,6 +209,7 @@ fun ShowDateNotesContent(
                     is NotesDateGridItem.ContentNotesDateItem -> NoteDateContentItem(
                         dayNote = item.day,
                         dayOfWeekNote = item.dayOfWeek,
+                        categories = item.categories,
                         onItemClick = { onItemClick(item.addedAt) },
                         onItemLongClick = { onItemLongClick(item.addedAt) },
                     )

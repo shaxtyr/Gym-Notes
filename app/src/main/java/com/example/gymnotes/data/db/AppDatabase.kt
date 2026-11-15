@@ -9,7 +9,7 @@ import com.example.gymnotes.data.db.entity.GymnasticEntity
 
 @Database(
     entities = [NoteEntity::class, GymnasticEntity::class],
-    version = 9
+    version = 10
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao

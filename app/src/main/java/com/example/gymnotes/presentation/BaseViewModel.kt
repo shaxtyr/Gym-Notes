@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,8 +43,8 @@ abstract class BaseViewModel<State: Any, Intent: Any, Effect: Any>(
         dispatcher: CoroutineDispatcher = Dispatchers.IO,
         onError: (Throwable) -> Unit = {},
         block: suspend () -> Unit
-    ) {
-        viewModelScope.launch(dispatcher) {
+    ) : Job {
+        return viewModelScope.launch(dispatcher) {
             try {
                 block()
             } catch (e: CancellationException) {

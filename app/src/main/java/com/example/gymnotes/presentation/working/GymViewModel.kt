@@ -9,7 +9,6 @@ import com.example.gymnotes.domain.model.TimerMode
 import com.example.gymnotes.presentation.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -136,10 +135,7 @@ class GymViewModel(
                     item.id != id
                 }
                 updateState {
-                    copy(
-                        gymItems = newGymnastics,
-                        //currentGymnastic = null
-                    )
+                    copy(gymItems = newGymnastics)
                 }
                 sendEffect(GymEffects.ShowInfo(GymInfo.SuccessRemoveGym))
             } catch (e: Exception) {
@@ -163,7 +159,9 @@ class GymViewModel(
     }
     private fun addNote(reps: String, heft: String, gymnastic: Gymnastic) {
         launch {
-            if (reps.isBlank()) {
+            // Оставил наработки на случай реализации корректного вывода ошибки
+
+            /*if (reps.isBlank()) {
                 updateState { copy(validation = GymInfo.RepsEmpty) }
                 return@launch
             }
@@ -186,45 +184,51 @@ class GymViewModel(
             if (heft.toInt() > HEFT_MAX) {
                 updateState { copy(validation = GymInfo.HeftOver) }
                 return@launch
-            }
-            try {
-                noteInteractor.addNote(reps, heft, gymnastic)
-                updateState { copy(
-                    isAddGymDetailsDialogVisible = false,
-                    validation = GymInfo.Success
-                ) }
-                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessAddNote))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                sendEffect(GymEffects.ShowInfo(GymInfo.AddNoteError))
+            }*/
+            if (reps.isNotBlank() && heft.isNotBlank() && reps.toInt() != 0 && heft.toInt() != 0 && reps.toInt() <= REPS_MAX && heft.toInt() <= HEFT_MAX) {
+                try {
+                    noteInteractor.addNote(reps, heft, gymnastic)
+                    updateState { copy(
+                        isAddGymDetailsDialogVisible = false,
+                        validation = GymInfo.Success
+                    ) }
+                    sendEffect(GymEffects.ShowInfo(GymInfo.SuccessAddNote))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    sendEffect(GymEffects.ShowInfo(GymInfo.AddNoteError))
+                }
             }
         }
     }
     private fun addGym(category: String, gymnasticName: String) {
         launch {
-            if (gymnasticName.isBlank()) {
+            // Оставил наработки на случай реализации корректного вывода ошибки
+
+            /*if (gymnasticName.isBlank()) {
                 updateState { copy(validation = GymInfo.GymNameEmpty) }
                 return@launch
             }
             if (gymnasticName.length > GYM_NAME_MAX) {
                 updateState { copy(validation = GymInfo.GymNameOver) }
                 return@launch
-            }
-            try {
-                workingInteractor.addGymnastic(category, gymnasticName)
-                val currentGymnastics = workingInteractor.getGymnasticsByCategory(category).first().toMutableList()
-                updateState {
-                    copy(
-                        categoryForWatching = category,
-                        gymItems = currentGymnastics,
-                        isAddGymDialogVisible = false,
-                        validation = GymInfo.Success
-                    )
+            }*/
+            if (gymnasticName.isNotBlank() && gymnasticName.length <= GYM_NAME_MAX) {
+                try {
+                    workingInteractor.addGymnastic(category, gymnasticName)
+                    val currentGymnastics = workingInteractor.getGymnasticsByCategory(category).first().toMutableList()
+                    updateState {
+                        copy(
+                            categoryForWatching = category,
+                            gymItems = currentGymnastics,
+                            isAddGymDialogVisible = false,
+                            validation = GymInfo.Success
+                        )
+                    }
+                    sendEffect(GymEffects.ShowInfo(GymInfo.SuccessAddGym))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    sendEffect(GymEffects.ShowInfo(GymInfo.AddGymError))
                 }
-                sendEffect(GymEffects.ShowInfo(GymInfo.SuccessAddGym))
-            } catch (e: Exception) {
-                e.printStackTrace()
-                sendEffect(GymEffects.ShowInfo(GymInfo.AddGymError))
             }
         }
     }

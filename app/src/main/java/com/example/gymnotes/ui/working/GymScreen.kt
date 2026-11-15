@@ -2,13 +2,7 @@ package com.example.gymnotes.ui.working
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.InteractionSource
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,16 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RippleDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -39,10 +29,8 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxDefaults
-import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -65,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import com.example.gymnotes.R
 import com.example.gymnotes.domain.model.Gymnastic
 import com.example.gymnotes.domain.model.TimerMode
-import com.example.gymnotes.presentation.notes.NotesDateIntent
 import com.example.gymnotes.presentation.working.GymEffects
 import com.example.gymnotes.presentation.working.GymInfo
 import com.example.gymnotes.presentation.working.GymIntent
@@ -77,7 +64,6 @@ import com.example.gymnotes.ui.components.RemoveDialog
 import com.example.gymnotes.ui.components.RenameListDialog
 import com.example.gymnotes.util.FabItem
 import org.koin.androidx.compose.koinViewModel
-import kotlin.time.Duration
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,10 +96,6 @@ fun GymScreen(
 
     val selectedIndex = fabItems.indexOfFirst { it.text == state.categoryForWatching }
         .takeIf { it != -1 } ?: 0
-
-    /*LaunchedEffect(key1 = state.categoryForWatching) {
-        gymViewModel.handleIntent(GymIntent.LoadGymsByCategory(state.categoryForWatching))
-    }*/
 
     LaunchedEffect(key1 = Unit) {
         gymViewModel.effect.collect { effect ->
@@ -191,6 +173,31 @@ fun GymScreen(
                     fabItems = fabItems
                 )
             }
+        },
+        snackbarHost = {
+            Box {
+                SnackbarHost(hostState = snackbarHostState) { data ->
+                    Snackbar(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .align(Alignment.Center),
+                        snackbarData = data,
+                        shape = MaterialTheme.shapes.medium,
+                        containerColor = if (
+                            state.validation == GymInfo.Success ||
+                            state.validation == GymInfo.SuccessAddGym ||
+                            state.validation == GymInfo.SuccessRenameGym ||
+                            state.validation == GymInfo.SuccessRemoveGym ||
+                            state.validation == GymInfo.SuccessAddNote
+                        ) {
+                            Color.Green
+                        } else {
+                            Color.Red
+                        },
+                        contentColor = Color.Black
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(modifier = Modifier
@@ -231,32 +238,10 @@ fun GymScreen(
                         }
                     )
                 }
-                Box {
-                    SnackbarHost(hostState = snackbarHostState) { data ->
-                        Snackbar(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .align(Alignment.Center),
-                            snackbarData = data,
-                            shape = MaterialTheme.shapes.medium,
-                            containerColor = if (
-                                state.validation == GymInfo.Success ||
-                                state.validation == GymInfo.SuccessAddGym ||
-                                state.validation == GymInfo.SuccessRenameGym ||
-                                state.validation == GymInfo.SuccessRemoveGym ||
-                                state.validation == GymInfo.SuccessAddNote
-                                ) {
-                                Color.Green
-                            } else {
-                                Color.Red
-                            },
-                            contentColor = Color.Black
-                        )
-                    }
-                }
             } else {
                 ShowTimer(
                     time = state.currentTime,
+                    timerMode = state.timerMode,
                     onToggle = { gymViewModel.toggleTimer() },
                     onReset = { gymViewModel.resetTimer() }
                 )
@@ -307,10 +292,6 @@ fun GymScreen(
                         gym = state.currentGymnastic!!
                     )
                 )
-            },
-            onDismission = {
-                gymViewModel.handleIntent(GymIntent.HideAddGymDetailsDialog)
-                gymViewModel.handleIntent(GymIntent.DefaultValidation)
             }
         )
         RenameListDialog(
@@ -470,6 +451,7 @@ fun GymnasticItem(
 @Composable
 fun ShowTimer(
     time: String,
+    timerMode: TimerMode,
     onToggle: () -> Unit,
     onReset: () -> Unit
 ) {
@@ -488,6 +470,15 @@ fun ShowTimer(
                 ),
             text = time,
             style = MaterialTheme.typography.displayLarge
+        )
+        Spacer(modifier = Modifier.height(50.dp))
+        ButtonsLib.Button(
+            onClick = { onToggle() },
+            stringId = if (timerMode is TimerMode.Work) R.string.pause_timer else R.string.start_timer
+        )
+        ButtonsLib.Button(
+            onClick = { onReset() },
+            stringId = R.string.reset_timer
         )
     }
 }

@@ -3,6 +3,7 @@ package com.example.gymnotes.presentation.notes
 import com.example.gymnotes.domain.interactor.NoteInteractor
 import com.example.gymnotes.domain.model.NoteItem
 import com.example.gymnotes.presentation.BaseViewModel
+import kotlinx.coroutines.Job
 
 data class NotesState(
     val notesItems: List<NoteItem> = emptyList(),
@@ -11,7 +12,6 @@ data class NotesState(
 
 sealed class NotesIntent {
     data class LoadNotes(val addedAt: String) : NotesIntent()
-    data class RemoveNotes(val id: String) : NotesIntent()
 }
 
 sealed class NotesEffect {
@@ -19,36 +19,54 @@ sealed class NotesEffect {
 }
 sealed class NotesError {
     object LoadFailed : NotesError()
-    object AddFailed : NotesError()
-    object RemoveFailed : NotesError()
-    object EditFailed : NotesError()
 }
 
 class NotesViewModel(
     private val noteInteractor: NoteInteractor
 ) : BaseViewModel<NotesState, NotesIntent, NotesEffect>(NotesState()) {
 
+    private var loadNotesJob: Job? = null
+
     override fun handleIntent(intent: NotesIntent) {
-        when(intent) {
-            is NotesIntent.LoadNotes -> loadNotes(intent.addedAt)
-            is NotesIntent.RemoveNotes -> removeNotes(intent.id)
+        if(intent is NotesIntent.LoadNotes) {
+            loadNotes(intent.addedAt)
         }
     }
 
     private fun loadNotes(addedAt: String) {
-        launch {
+        loadNotesJob?.cancel()
+        loadNotesJob = launch {
             try {
                 noteInteractor.getNotesByDate(addedAt).collect { notes ->
-                     val notesItemCurrent = mutableListOf<NoteItem>()
+                    val notesItemCurrent = mutableListOf<NoteItem>()
+                    val notesItemCurrentGrouped = mutableListOf<NoteItem>()
 
+                    // Сделал общий список из заголовков и данных
                     for (item in notes) {
                         if (!notesItemCurrent.contains(NoteItem.HeaderNoteItem(item.gymnasticName, item.category))) {
                             notesItemCurrent.add(NoteItem.HeaderNoteItem(item.gymnasticName, item.category))
                         }
-                        notesItemCurrent.add(NoteItem.ContentNoteItem(item.sets, item.reps, item.heft))
+                        notesItemCurrent.add(NoteItem.ContentNoteItem(item.gymnasticName, item.category, item.sets, item.reps, item.heft))
                     }
+
+                    // Получаю список заголовков
+                    val headerList = notesItemCurrent.filterIsInstance<NoteItem.HeaderNoteItem>()
+
+                    // Получаю список данных
+                    val contentList = notesItemCurrent.filterIsInstance<NoteItem.ContentNoteItem>()
+
+                    // Наконец группирую, как надо
+                    for (header in headerList) {
+                        notesItemCurrentGrouped.add(header)
+                        for (content in contentList) {
+                            if (content.category == header.category && content.gymName == header.gymName) {
+                                notesItemCurrentGrouped.add(content)
+                            }
+                        }
+                    }
+
                     updateState {
-                        copy(notesItems = notesItemCurrent)
+                        copy(notesItems = notesItemCurrentGrouped)
                     }
                 }
             } catch (e: Exception) {
@@ -57,22 +75,4 @@ class NotesViewModel(
             }
         }
     }
-
-    private fun removeNotes(id: String) {
-        /*launch {
-            try {
-                noteInteractor.removeNote(id)
-                val newNotesList = currentState.notesItems.filter { item ->
-                    item != id
-                }
-                updateState {
-                    copy(notesItems = newNotesList)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                sendEffect(NotesEffect.ShowToast(NotesError.RemoveFailed))
-            }
-        }*/
-    }
-
 }

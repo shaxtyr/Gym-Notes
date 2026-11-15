@@ -49,11 +49,6 @@ fun AchievementsScreen(
     achievementsViewModel: AchievementsViewModel = koinViewModel()
 ) {
     val state by achievementsViewModel.state.collectAsState()
-
-    LaunchedEffect(key1 = Unit) {
-        achievementsViewModel.handleIntent(AchievementsIntent.ShowListOfAchievements)
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -78,7 +73,7 @@ fun AchievementsScreen(
             if (state.listOfAchievements.isEmpty()) {
                 ShowPlaceholderAchievements()
             } else {
-                ShowAchievements(state.listOfAchievements)
+                ShowAchievements(achievementsViewModel.listOfAchievementsSorted)
             }
         }
     }

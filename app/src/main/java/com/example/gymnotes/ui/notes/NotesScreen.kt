@@ -26,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.gymnotes.R
-import com.example.gymnotes.domain.model.NoteItem
 import com.example.gymnotes.presentation.notes.NotesEffect
 import com.example.gymnotes.presentation.notes.NotesIntent
 import com.example.gymnotes.presentation.notes.NotesViewModel

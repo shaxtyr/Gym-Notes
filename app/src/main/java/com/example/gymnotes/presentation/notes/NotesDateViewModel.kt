@@ -2,7 +2,6 @@ package com.example.gymnotes.presentation.notes
 
 import com.example.gymnotes.domain.interactor.NoteInteractor
 import com.example.gymnotes.domain.interactor.ThemeInteractor
-import com.example.gymnotes.domain.model.Note
 import com.example.gymnotes.domain.model.NotesDateGridItem
 import com.example.gymnotes.presentation.BaseViewModel
 
@@ -37,9 +36,7 @@ sealed class NotesDateEffect {
 
 sealed class NotesDateError {
     object LoadFailed : NotesDateError()
-    object AddFailed : NotesDateError()
     object RemoveFailed : NotesDateError()
-    object EditFailed : NotesDateError()
 }
 
 class NotesDateViewModel(
@@ -49,7 +46,8 @@ class NotesDateViewModel(
     currentGridNotesDateItems = NotesDateGridItem.ContentNotesDateItem(
         day = "",
         dayOfWeek = "",
-        addedAt = ""
+        addedAt = "",
+        emptyList()
     )
 )) {
 
@@ -78,14 +76,19 @@ class NotesDateViewModel(
             try {
                 noteInteractor.getAllNotes().collect { notes ->
                     val gridNoteItemsCurrent = mutableListOf<NotesDateGridItem>()
+                    val categories = notes
+                        .map { it.category }
+                        .toSet()
+                        .mapNotNull { it.firstOrNull()?.toString() }
+                        .sorted()
 
                     //создаю новый комбинированный список
                     for (item in notes) {
                         if (!gridNoteItemsCurrent.contains(NotesDateGridItem.HeaderNotesDateItem(item.monthYear))) {
                             gridNoteItemsCurrent.add(NotesDateGridItem.HeaderNotesDateItem(item.monthYear))
                         }
-                        if (!gridNoteItemsCurrent.contains(NotesDateGridItem.ContentNotesDateItem(item.day, item.dayOfWeek, item.addedAt))) {
-                            gridNoteItemsCurrent.add(NotesDateGridItem.ContentNotesDateItem(item.day, item.dayOfWeek, item.addedAt))
+                        if (!gridNoteItemsCurrent.contains(NotesDateGridItem.ContentNotesDateItem(item.day, item.dayOfWeek, item.addedAt, categories))) {
+                            gridNoteItemsCurrent.add(NotesDateGridItem.ContentNotesDateItem(item.day, item.dayOfWeek, item.addedAt, categories))
                         }
                     }
                     updateState {
@@ -107,6 +110,7 @@ class NotesDateViewModel(
                 val newGridNotesDateItems = currentState.gridNotesDateItems.filter { item ->
                     when (item) {
                         is NotesDateGridItem.ContentNotesDateItem -> item.day != date
+                        //is NotesDateGridItem.ContentNotesDateItem -> item.addedAt != date
                         is NotesDateGridItem.HeaderNotesDateItem -> true // Заголовок оставляем
                     }
                 }
@@ -120,7 +124,6 @@ class NotesDateViewModel(
             }
         }
     }
-
     private fun loadTheme() {
         launch {
             themeInteractor.getIsDarkTheme().collect { isDark ->
@@ -159,6 +162,4 @@ class NotesDateViewModel(
     private fun hidePopupHelping() {
         updateState { copy(isPopupHelpingVisible = false) }
     }
-
-
 }

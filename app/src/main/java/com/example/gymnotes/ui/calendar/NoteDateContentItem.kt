@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 fun NoteDateContentItem(
     dayNote: String,
     dayOfWeekNote: String,
+    categories: List<String>,
     onItemClick: (String) -> Unit,
     onItemLongClick: (String) -> Unit
 ) {
@@ -31,7 +32,6 @@ fun NoteDateContentItem(
                 onClick = { onItemClick(dayNote) },
                 onLongClick = { onItemLongClick(dayNote) }
             ),
-        //color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 8.dp
     ) {
@@ -41,9 +41,31 @@ fun NoteDateContentItem(
                 .padding(2.dp),
             contentAlignment = Alignment.Center,
         ) {
+            // Оставил на случай отображения в календаре категорий выполненных упражнений
+
+            /*Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(2.dp),
+                contentAlignment = Alignment.TopStart
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                        //.padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    categories.forEach { letter ->
+                        Text(
+                            text = letter,
+                            style = MaterialTheme.typography.labelSmall,
+                            //color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }*/
             Text(
                 text = dayNote,
-                //color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleLarge,
             )
             Box(
@@ -54,8 +76,7 @@ fun NoteDateContentItem(
             ) {
                 Text(
                     text = dayOfWeekNote,
-                    //color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
         }

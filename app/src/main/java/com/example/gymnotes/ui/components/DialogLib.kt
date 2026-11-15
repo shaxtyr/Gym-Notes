@@ -6,12 +6,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,8 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 
@@ -80,8 +75,7 @@ fun AddDetailsGymnasticDialog(
     visible: Boolean,
     validationMessage: String,
     onDismissRequest: () -> Unit,
-    onConfirmation: (String, String) -> Unit,
-    onDismission: () -> Unit,
+    onConfirmation: (String, String) -> Unit
 ) {
     var reps by remember { mutableStateOf("") }
     var heft by remember { mutableStateOf("") }
@@ -128,16 +122,14 @@ fun AddDetailsGymnasticDialog(
             },
             confirmButton = {
                 ButtonsLib.TextButton(onClick = { onConfirmation(reps, heft) }, R.string.create)
-                //reps = ""
-                //heft = ""
             },
             dismissButton = {
-                ButtonsLib.TextButton(onClick = onDismission, R.string.cancel)
-                reps = ""
-                heft = ""
+                ButtonsLib.TextButton(onClick = onDismissRequest, R.string.cancel)
             }
         )
     }
+    heft = ""
+    reps = ""
 }
 @Composable
 fun RenameListDialog(
@@ -227,7 +219,5 @@ fun RemoveDialog(
 }
 
 object Borders {
-    const val REPS_MAX = 10_000
-    const val HEFT_MAX = 100_000
     const val GYM_NAME_MAX = 100
 }
