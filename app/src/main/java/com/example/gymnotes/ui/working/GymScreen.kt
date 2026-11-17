@@ -214,7 +214,12 @@ fun GymScreen(
                             onClick = {
                                 gymViewModel.handleIntent(GymIntent.ChooseWatchingCategory(item.text))
                             },
-                            label = { Text(item.text) }
+                            label = {
+                                Text(
+                                    text = item.text,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            }
                         )
                     }
                 }
@@ -342,7 +347,7 @@ fun ShowEmptyGymnasticsPlaceHolder() {
         Text(
             text = stringResource(R.string.empty_gymnastics_suggest),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Normal,
         )
         Image(
             alignment = Alignment.Center,
@@ -443,7 +448,7 @@ fun GymnasticItem(
             overflow = TextOverflow.Ellipsis,
             maxLines = 2,
             style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Normal
         )
     }
 }
@@ -469,6 +474,7 @@ fun ShowTimer(
                     onLongClick = { onReset() }
                 ),
             text = time,
+            fontWeight = FontWeight.Light,
             style = MaterialTheme.typography.displayLarge
         )
         Spacer(modifier = Modifier.height(50.dp))

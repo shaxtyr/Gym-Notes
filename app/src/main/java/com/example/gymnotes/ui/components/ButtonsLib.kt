@@ -3,6 +3,7 @@ package com.example.gymnotes.ui.components
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButtonMenu
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import com.example.gymnotes.util.FabItem
 
 object ButtonsLib {
@@ -28,10 +30,12 @@ object ButtonsLib {
     fun Button(onClick: () -> Unit, @StringRes stringId: Int) {
         Button(
             onClick = onClick,
-            shape = MaterialTheme.shapes.small
+            shape = MaterialTheme.shapes.small,
+            colors = ButtonDefaults.buttonColors(Color.DarkGray)
         ) {
             Text(
                 text = stringResource(stringId),
+                fontWeight = FontWeight.Light,
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -56,6 +60,7 @@ object ButtonsLib {
         ) {
             Text(
                 text = stringResource(stringId),
+                fontWeight = FontWeight.Light,
                 style = MaterialTheme.typography.labelLarge)
         }
     }
@@ -94,7 +99,10 @@ object ButtonsLib {
                         onCategorySelected(item.text)
                         expanded = false
                               },
-                    text = { Text(item.text) },
+                    text = { Text(
+                        text = item.text,
+                        fontWeight = FontWeight.Light
+                    ) },
                     icon = {
                         Icon(
                             imageVector = ImageVector.vectorResource(item.iconRes),

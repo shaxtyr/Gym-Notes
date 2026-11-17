@@ -98,7 +98,7 @@ fun ShowPlaceholderAchievements() {
         Text(
             text = stringResource(R.string.empty_achievements_suggest),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Normal,
         )
     }
 }
@@ -112,7 +112,7 @@ fun ShowAchievements(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(listOfAchievements) { achievement ->
-            ShowAchievements(
+            ItemAchievements(
                 gymName = achievement.gymnasticName,
                 category = achievement.category,
                 maxHeft = achievement.heft,
@@ -123,7 +123,7 @@ fun ShowAchievements(
 }
 
 @Composable
-fun ShowAchievements(
+fun ItemAchievements(
     gymName: String,
     category: String,
     maxHeft: String,
@@ -150,7 +150,7 @@ fun ShowAchievements(
                 text = gymName,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 style = MaterialTheme.typography.titleMedium
             )
             Row(
@@ -176,7 +176,7 @@ fun ShowAchievements(
                     Text(
                         text = maxHeft,
                         style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Normal
                     )
                     Text(
                         text = stringResource(R.string.heft_max),
@@ -191,7 +191,7 @@ fun ShowAchievements(
                     Text(
                         text = reps,
                         style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Normal,
                     )
                     Text(
                         text = stringResource(R.string.reps).lowercase(),

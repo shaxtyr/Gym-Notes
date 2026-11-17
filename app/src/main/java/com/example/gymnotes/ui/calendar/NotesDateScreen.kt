@@ -173,7 +173,7 @@ fun ShowEmptyNotesPlaceHolder() {
         Text(
             text = stringResource(R.string.empty_notes_suggest),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Normal,
         )
     }
 }
@@ -230,22 +230,26 @@ fun ShowPopup(onClick: () -> Unit) {
                 Text(
                     text = stringResource(R.string.welcome),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Light,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 Text(
-                    style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = TextUnit.Unspecified,
                     modifier = Modifier.padding(bottom = 16.dp),
-                    text = stringResource(R.string.help)
+                    text = stringResource(R.string.help),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Light,
+                    lineHeight = TextUnit.Unspecified
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onClick) {
-                        Text(text = stringResource(R.string.got))
+                        Text(
+                            text = stringResource(R.string.got),
+                            fontWeight = FontWeight.Light
+                        )
                     }
                 }
             }

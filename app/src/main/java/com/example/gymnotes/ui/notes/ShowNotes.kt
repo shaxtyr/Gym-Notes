@@ -78,7 +78,7 @@ fun NoteItemHeader(
                     overflow = TextOverflow.Ellipsis,
                     text = gymName,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Normal,
                 )
                 Icon(
                     modifier = Modifier.size(24.dp),
@@ -137,7 +137,7 @@ fun NoteRowCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = sets,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Light,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -145,7 +145,7 @@ fun NoteRowCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = reps,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Light,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -153,7 +153,7 @@ fun NoteRowCard(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = heft,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Light,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
